@@ -82,7 +82,7 @@ namespace celeritas {{
 
 CMAKE_TOP = '''\
 #{modeline:-^77s}#
-# Copyright 2020 UT-Battelle, LLC and other VecGeomTest Developers.
+# Copyright 2020 UT-Battelle, LLC and other Celeritas Developers.
 # See the top-level COPYRIGHT file for details.
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 '''

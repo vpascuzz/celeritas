@@ -74,12 +74,46 @@ When you have a class that needs a lot of data to start in a valid state, use a
 ``struct`` of intuitive objects to pass the data to the class's constructor.
 The constructor can do any necessary validation on the input data.
 
+Learn from the pros
+-------------------
+
+Other entities devoted to sustainable programming have their own guidelines.
+The `ISO C++ guidelines`_ are very long but offer a number of insightful
+suggestions about C++ programming. The `Google style guide`_ is a little more
+targeted toward legacy code and large production environments, but it still
+offers good suggestions.
+
+.. _ISO C++ guidelines: http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
+.. _Google style guide: https://google.github.io/styleguide/cppguide.html
 
 Style guidelines
 ================
 
-Having a consistent code style makes it more readable and maintainable. You
-don't have to guess whether a function or class.
+Having a consistent code style makes it more readable and maintainable. (For
+example, you don't have to guess whether a symbol is a function or class.)
+
+Formatting
+----------
+
+Formatting is determined by the clang-format file inside the top-level
+directory. One key restriction is the 80-column limit, which enables multiple
+code windows to be open side-by-side. Generally, statements longer than 80
+columns should be broken into sub-expressions for improved readability anyway.
+
+Symbol names
+------------
+
+Functions should be verbs; classes should be names. As in standard Python
+(PEP-8-compliant) code, classes should use ``CapWordsStyle`` and variables
+``snake_case_style``.
+
+Functors (classes whose instances act like a function) should be an *agent
+noun*: the noun form of an action verb. Instances of a functor should be a
+verb. For example::
+
+   ModelEvaluator evaluate_something(parameters...);
+   auto result = evaluate_something(arguments...);
+
 
 File names
 ----------
@@ -118,22 +152,16 @@ Thus we have the following rules:
 
 - ``.h`` is for C++ code compatible with host compilers. It may declare Thrust
   objects, since thrust type declarations are compatible with the host
-  compiler. It can also use host/device keywords if it includes the cuda
-  runtime api or hides the keywords with macros.
+  compiler. It can also use host/device keywords if it includes the CUDA
+  runtime API or hides the keywords with macros.
 - ``.cu`` is for ``__global__`` kernels and functions that launch them
 - ``.cuh`` is for header files that require compilation by NVCC: contain
   ``__device __``-only code or include CUDA directives without ``#include
   <cuda_runtime_api.h>``.
 
-Code object names
------------------
-
-Functions should be verbs; classes should be names. Functors (classes whose
-instances act like a function) should be an *agent noun*: the noun form of an
-action verb. Instances of a functor should be a verb. For example::
-
-   ModelEvaluator evaluate_something(parameters...);
-   auto result = evaluate_something(arguments...);
+Ideally we could keep ``thrust`` includes isolated from ``.cu`` code to speed
+compilation and to potentially allow host testing of ``__device__``--annotated
+code.
 
 Variable names
 --------------
