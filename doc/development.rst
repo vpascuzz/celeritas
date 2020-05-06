@@ -148,12 +148,17 @@ actually launches a kernel to fill the vector's initial state. The code will
 not compile in a ``.cc`` file run through the host compiler, but it will
 automatically (and silently) generate kernel code when run through NVCC.
 
+Finally, we choose the convention of ``.cc`` for C++ translation units and
+corresponding ``.hh`` files for C++ headers.
+
 Thus we have the following rules:
 
-- ``.h`` is for C++ code compatible with host compilers. It may declare Thrust
+- ``.hh`` is for C++ code compatible with host compilers. It may declare Thrust
   objects, since thrust type declarations are compatible with the host
   compiler. It can also use host/device keywords if it includes the CUDA
   runtime API or hides the keywords with macros.
+- ``.cc`` is for C++ code that will invariably be compiled by the host
+  compiler.
 - ``.cu`` is for ``__global__`` kernels and functions that launch them
 - ``.cuh`` is for header files that require compilation by NVCC: contain
   ``__device __``-only code or include CUDA directives without ``#include

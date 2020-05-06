@@ -23,6 +23,7 @@ option(BUILD_TESTING "Enable CTest" ${CELERITAS_BUILD_TESTS})
 
 # TPLs
 option(CELERITAS_USE_CUDA "Enable GPU transport" ON)
+option(CELERITAS_USE_MPI "Enable distributed memory parallelism" ON)
 option(CELERITAS_USE_ROOT "Enable ROOT I/O" OFF)
 option(CELERITAS_USE_VECGEOM "Enable VecGeom geometry" ON)
 
@@ -41,6 +42,7 @@ if(APPLE)
 endif()
 
 # Build flags
+option(CELERITAS_DEBUG "Enable runtime assertions" ON)
 set(CMAKE_CUDA_FLAGS_DEBUG "-g -G" CACHE STRING "")
 if(NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type")
@@ -58,6 +60,10 @@ endforeach()
 if(CELERITAS_USE_CUDA)
   enable_language(CUDA)
   set(CMAKE_CUDA_STANDARD 14)
+endif()
+
+if(CELERITAS_USE_MPI)
+  find_package(MPI REQUIRED)
 endif()
 
 if(CELERITAS_USE_ROOT)
@@ -79,13 +85,15 @@ add_subdirectory(external)
 # LIBRARY
 #---------------------------------------------------------------------------##
 
-# add_subdirectory(src)
+add_subdirectory(src)
 
 #---------------------------------------------------------------------------##
 # TESTS
 #---------------------------------------------------------------------------##
 
-# add_subdirectory(test)
+if(CELERITAS_BUILD_TESTS)
+  add_subdirectory(test)
+endif()
 
 #---------------------------------------------------------------------------##
 # DEMO APP

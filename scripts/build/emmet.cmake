@@ -13,6 +13,15 @@ set(CMAKE_CUDA_FLAGS "-arch=sm_35" CACHE STRING "")
 set(CMAKE_CUDA_FLAGS_DEBUG "-g -G" CACHE STRING "")
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "")
 
+# Use MPI
+# XXX fexceptions gets added by the FindMPI script but it doesn't get escaped
+# and so causes nvcc to bomb.
+set(MPI_CXX_COMPILE_OPTIONS
+  "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcompiler=>-fexceptions;-pthread"
+  CACHE STRING "")
+
+set(MPI_CXX_SKIP_MPICXX TRUE CACHE BOOL "")
+
 # Enable color diagnostics when using Ninja
 foreach(LANG C CXX)
   set(CMAKE_${LANG}_FLAGS "${CMAKE_${LANG}_FLAGS} -fdiagnostics-color=always"

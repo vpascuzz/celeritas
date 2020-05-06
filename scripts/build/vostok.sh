@@ -9,6 +9,7 @@ cd build
 
 # Note: vecgeom doesn't correctly export RPATHs
 # module load vecgeom veccore 
+module load openmpi
 
 cmake -C ${BUILDSCRIPT_DIR}/vostok.cmake -G Ninja \
   -DCMAKE_INSTALL_PREFIX:PATH=$SOURCE_DIR/install \
