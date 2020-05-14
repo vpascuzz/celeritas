@@ -1,25 +1,30 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------*-CUDA-*----------------------------------//
 // Copyright 2020 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file RngStateContainer.cu
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
+#include "RngStateContainer.cuh"
+
+#include "base/Assert.hh"
 
 namespace celeritas
 {
 //---------------------------------------------------------------------------//
-template<typename T, std::size_t N>
-class array;
+/*!
+ * Construct with no states.
+ */
+RngStateContainer::RngStateContainer() = default;
 
-using size_type    = std::size_t;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
+//---------------------------------------------------------------------------//
+/*!
+ * Construct with an empty state
+ */
+RngStateContainer::RngStateContainer(size_type count) : rng_(count)
+{
+    ENSURE(rng_.size() == count);
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-#endif // base_Types_hh

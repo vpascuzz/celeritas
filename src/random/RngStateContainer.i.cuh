@@ -1,25 +1,28 @@
-//----------------------------------*-C++-*----------------------------------//
+//---------------------------------*-CUDA-*----------------------------------//
 // Copyright 2020 UT-Battelle, LLC, and other Celeritas developers.
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file RngStateContainer.i.cuh
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
+
+#include "base/Assert.hh"
 
 namespace celeritas
 {
 //---------------------------------------------------------------------------//
-template<typename T, std::size_t N>
-class array;
+/*!
+ * Return a view to on-device memory
+ */
+RngStateView RngStateContainer::device_view()
+{
+    using thrust::raw_pointer_cast;
 
-using size_type    = std::size_t;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
+    RngStateView::Params params;
+    params.size = this->size();
+    params.rng  = raw_pointer_cast(rng_.data());
+    return RngStateView(params);
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-#endif // base_Types_hh
