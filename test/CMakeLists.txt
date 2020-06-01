@@ -59,6 +59,10 @@ celeritas_setup_tests(SERIAL PREFIX random)
 celeritas_add_test(random/RadialDistribution.test.cc)
 celeritas_add_test(random/UniformRealDistribution.test.cc)
 
+add_executable(DummyProcessTest physics/DummyProcess.test.cc)
+target_link_libraries(DummyProcessTest PRIVATE test_celeritas)
+add_test(NAME DummyProcessTest COMMAND DummyProcessTest)
+
 if(CELERITAS_USE_CUDA)
   celeritas_add_test(random/RadialDistribution.test.cu SUFFIX cuda)
   celeritas_add_test(random/UniformRealDistribution.test.cu SUFFIX cuda)
