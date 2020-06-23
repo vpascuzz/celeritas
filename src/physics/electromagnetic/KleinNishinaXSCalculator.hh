@@ -3,10 +3,10 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file DummyProcess.hh
+//! \file KleinNishinaXSCalculator.hh
 //---------------------------------------------------------------------------//
-#ifndef physics_DummyProcess_hh
-#define physics_DummyProcess_hh
+#ifndef physics_electromagnetic_KleinNishinaXSCalculator_hh
+#define physics_electromagnetic_KleinNishinaXSCalculator_hh
 
 namespace celeritas {
 //---------------------------------------------------------------------------//
@@ -15,29 +15,31 @@ namespace celeritas {
  *
  * Optional detailed class description, and possibly example usage:
  * \code
-    DummyProcess ...;
+    KleinNishinaXSCalculator ...;
    \endcode
  */
-class DummyProcess
+class KleinNishinaXSCalculator
 {
   public:
     //@{
     //! Type aliases
+    using AtomicNumberType = double;
     //@}
-    double e_gamma;
-    double ComputeAtomicCrossSection(double &z);
 
   public:
     // Construct with defaults
-    inline DummyProcess();
-    inline DummyProcess(double &e_gamma);
-    
-    ~DummyProcess();
+    inline KleinNishinaXSCalculator(double energy);
+
+    inline double operator()(AtomicNumberType z) const;
+
+  private:
+    //! Energy of the incident photon
+    double energy_;
 };
 
 //---------------------------------------------------------------------------//
 }  // namespace celeritas
 
-#include "DummyProcess.cc"
+#include "KleinNishinaXSCalculator.i.hh"
 
-#endif // physics_DummyProcess_hh
+#endif // physics_electromagnetic_KleinNishinaXSCalculator_hh
