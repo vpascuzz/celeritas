@@ -5,18 +5,18 @@
 //---------------------------------------------------------------------------//
 //! \file DummyProcess.test.cc
 //---------------------------------------------------------------------------//
-#include "physics/DummyProcess.hh"
+#include "physics/electromagnetic/KleinNishinaXSCalculator.hh"
 
 #include "gtest/Main.hh"
 #include "gtest/Test.hh"
 
-using celeritas::DummyProcess;
+using celeritas::KleinNishinaXSCalculator;
 
 //---------------------------------------------------------------------------//
 // TEST HARNESS
 //---------------------------------------------------------------------------//
 
-class DummyProcessTest : public celeritas::Test
+class KleinNishinaXSCalculatorTest : public celeritas::Test
 {
   protected:
     void SetUp() override {}
@@ -26,13 +26,13 @@ class DummyProcessTest : public celeritas::Test
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEST_F(DummyProcessTest, all)
+TEST_F(KleinNishinaXSCalculatorTest, all)
 {
     double e_gamma = 0;
     double z = 1;
     double returned_xs = 0;
     
-    DummyProcess process(e_gamma);
+    KleinNishinaXSCalculator processTest(e_gamma);
     
-    ASSERT_EQ(returned_xs, process.ComputeAtomicCrossSection(z));
+    ASSERT_EQ(returned_xs, processTest(z));
 }
