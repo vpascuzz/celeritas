@@ -59,10 +59,6 @@ celeritas_setup_tests(SERIAL PREFIX random)
 celeritas_add_test(random/RadialDistribution.test.cc)
 celeritas_add_test(random/UniformRealDistribution.test.cc)
 
-add_executable(KleinNishinaXSCalculatorTest physics/KleinNishinaXSCalculator.test.cc)
-target_link_libraries(KleinNishinaXSCalculatorTest PRIVATE test_celeritas)
-add_test(NAME KleinNishinaXSCalculatorTest COMMAND KleinNishinaXSCalculatorTest)
-
 if(CELERITAS_USE_CUDA)
   celeritas_add_test(random/RadialDistribution.test.cu SUFFIX cuda)
   celeritas_add_test(random/UniformRealDistribution.test.cu SUFFIX cuda)
@@ -70,3 +66,12 @@ if(CELERITAS_USE_CUDA)
 endif()
 
 #-----------------------------------------------------------------------------#
+# Physics
+
+celeritas_setup_tests(PREFIX physics_base)
+celeritas_add_test(physics/base/ThreeVector.test.cc)
+
+celeritas_setup_tests(PREFIX physics_electromagnetic)
+celeritas_add_test(physics/electromagnetic/KleinNishinaXSCalculator.test.cc)
+
+

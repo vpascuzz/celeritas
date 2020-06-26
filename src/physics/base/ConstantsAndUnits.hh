@@ -10,6 +10,9 @@
 
 namespace celeritas {
 //---------------------------------------------------------------------------//
+/*! \note Celeritas decided to use a CGS-based system with MeV as the base
+ *        energy unit for particles.
+ */
 
 namespace units {
 
@@ -47,17 +50,19 @@ constexpr double millibarn = 1.e-3 * barn;
 namespace constants {
 
 // Universal constants
-constexpr double pi  = 3.14159265358979323846;
-constexpr double speed_of_light = 299792458; // m/s
+constexpr double pi = 3.14159265358979323846;
+constexpr double two_pi  = 2 * pi;
+constexpr double speed_of_light = 299792458; // m/s PS: SHOULD WE MOVE TO CM?
+constexpr double speed_of_light_squared = speed_of_light * speed_of_light;
 
 // Electric charge
-constexpr double electric_charge_unit = 1. ;
+constexpr double electric_charge_unit = 1.;
 constexpr double electron_charge_SI = -1.602176487e-19; // Coulombs
 constexpr double coulomb = electric_charge_unit / electron_charge_SI;
 
 // Electron mass
-constexpr double electron_mass = 1;
-constexpr double electron_mass_c2 = 0.510998910 * celeritas::units::mega_electron_volt;
+constexpr double electron_mass = 0.51099891 * units::mega_electron_volt;
+constexpr double electron_mass_c2 = electron_mass * speed_of_light_squared;
 
 } // namespace constants
 

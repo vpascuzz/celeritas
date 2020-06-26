@@ -18,6 +18,7 @@ namespace celeritas {
     KleinNishinaSampleSecondaries ...;
    \endcode
  */
+
 class KleinNishinaSampleSecondaries
 {
   public:
@@ -28,6 +29,10 @@ class KleinNishinaSampleSecondaries
   public:
     // Construct with defaults
     inline KleinNishinaSampleSecondaries();
+    
+    // Parameter will likely be a vector of track objects
+    inline void operator()(double parameter) const;
+
 };
 
 //---------------------------------------------------------------------------//

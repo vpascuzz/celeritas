@@ -10,7 +10,7 @@
 
 #include "base/Assert.hh"
 #include "KleinNishinaXSCalculator.hh"
-#include "../base/ConstantsAndUnits.hh"
+#include "physics/base/ConstantsAndUnits.hh"
 
 
 namespace celeritas
@@ -26,9 +26,9 @@ double KleinNishinaXSCalculator::operator()(AtomicNumberType z) const
 {
     REQUIRE(z > 0);
     REQUIRE(double(int(z)) == z);
-
+    
     double xsec = 0.0;
-
+    
     constexpr double a = 20.0;
     constexpr double b = 230.0;
     constexpr double c = 440.0;

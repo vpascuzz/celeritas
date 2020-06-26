@@ -6,8 +6,12 @@
 //! \file KleinNishinaSampleSecondaries.i.hh
 //---------------------------------------------------------------------------//
 
+#include <cmath>
+
 #include "base/Assert.hh"
+#include "physics/base/ConstantsAndUnits.hh"
 #include "KleinNishinaSampleSecondaries.hh"
+
 
 namespace celeritas {
 //---------------------------------------------------------------------------//
@@ -15,94 +19,157 @@ namespace celeritas {
  * Construct with defaults.
  */
 KleinNishinaSampleSecondaries::KleinNishinaSampleSecondaries()
-{
-    /*
-  int numSecondaries = 0;
-  const double kinetic_energy  = track.GetKinE();
-  // check if kinetic energy is below fLowEnergyUsageLimit and do nothing if yes;
-  // check if kinetic energy is above fHighEnergyUsageLimit andd o nothing if yes
-  if (kinetic_energy < GetLowEnergyUsageLimit() || kinetic_energy > GetHighEnergyUsageLimit()) {
-    return numSecondaries;
-  }
-  // sample post interaction gamma energy
-  // here we need 3 random number + later one more for sampling phi
-  double *rndArray = td->fDblArray;
-  td->fRndm->uniform_array(4, rndArray);
-  double eps, oneMinusCost, sint2;
-  if (GetUseSamplingTables()) {
-    eps                = SampleReducedPhotonEnergy(kinetic_energy, rndArray[0], rndArray[1], rndArray[2]);
-    const double kappa = kinetic_energy / geant::units::kElectronMassC2;
-    oneMinusCost       = (1. / eps - 1.) / kappa;
-    sint2              = oneMinusCost * (2. - oneMinusCost);
-  } else {
-    eps = SampleReducedPhotonEnergy(kinetic_energy, oneMinusCost, sint2, td);
-  }
-  // compute gamma scattering angle (realtive to the origininal dir i.e. Z)
-  sint2             = std::max(0., sint2);
-  const double cost = 1.0 - oneMinusCost;
-  const double sint = std::sqrt(sint2);
-  const double phi  = geant::units::kTwoPi * (rndArray[3]);
-  // direction of the scattered gamma in the scattering frame
-  double dirX = sint * Math::Cos(phi);
-  double dirY = sint * Math::Sin(phi);
-  double dirZ = cost;
-  // rotate back to lab frame
-  Math::RotateToLabFrame(dirX, dirY, dirZ, track.GetDirX(), track.GetDirY(), track.GetDirZ());
-  //
-  // keep org. gamma dir in lab frame: will be updated but will be needed later
-  const double orgGamDirX = track.GetDirX();
-  const double orgGamDirY = track.GetDirY();
-  const double orgGamDirZ = track.GetDirZ();
-  // Update primary gamma track properties i.e. the scattered gamma
-  double eDeposit         = 0.0;
-  const double postGammaE = kinetic_energy * eps;
-  if (postGammaE > GetLowestSecondaryEnergy()) {
-    // update primary track kinetic energy
-    track.SetKinE(postGammaE);
-    // update primary track direction
-    track.SetDirX(dirX);
-    track.SetDirY(dirY);
-    track.SetDirZ(dirZ);
-  } else {
-    eDeposit += postGammaE;
-    track.SetKinE(0.0);
-    track.SetTrackStatus(LTrackStatus::kKill);
-  }
-  //
-  // Compute secondary e- properties: first the enrgy to check
-  const double elEnergy = kinetic_energy - postGammaE; // E_el = E_0-E_1
-  if (elEnergy > GetLowestSecondaryEnergy()) {
-    // compute the secondary e- direction: from momentum vector conservation
-    // final momentum of the secondary e- in the lab frame: = P_1-P_0 (binary col.)
-    double elDirX = kinetic_energy * orgGamDirX - postGammaE * dirX;
-    double elDirY = kinetic_energy * orgGamDirY - postGammaE * dirY;
-    double elDirZ = kinetic_energy * orgGamDirZ - postGammaE * dirZ;
-    // normalisation factor
-    const double norm = 1.0 / std::sqrt(elDirX * elDirX + elDirY * elDirY + elDirZ * elDirZ);
-    elDirX *= norm;
-    elDirY *= norm;
-    elDirZ *= norm;
-    // create the secondary partcile i.e. the e-
-    numSecondaries      = 1;
-    LightTrack &emTrack = td->fPhysicsData->InsertSecondary();
-    emTrack.SetDirX(elDirX);
-    emTrack.SetDirY(elDirY);
-    emTrack.SetDirZ(elDirZ);
-    emTrack.SetKinE(elEnergy);
-    emTrack.SetGVcode(fSecondaryInternalCode); // e- GV code
-    emTrack.SetMass(geant::units::kElectronMassC2);
-    emTrack.SetTrackIndex(track.GetTrackIndex()); // parent Track index
-  } else {
-    eDeposit += elEnergy;
-  }
-  //
-  // set (possible) energy deposit
-  track.SetEnergyDeposit(eDeposit);
-  //
-  // return with number of secondaries i.e. 1 or 0
-  return numSecondaries;
-     */
+:
+{}
+
+// Need to correct the operator() input parameters
+void KleinNishinaSampleSecondaries::operator()(double parameter) const;
+
+    // The scattered gamma energy is sampled according to Klein - Nishina formula.
+    // The random number techniques of Butcher & Messel are used
+    // (Nuc Phys 20(1960),15).
+    // Note : Effects due to binding of atomic electrons are negliged.
     
+    // Placeholder. To be replaced by a particle->GetEnergy() kind of function
+    double gamma_initial_energy = 10;
+    double lowest_secondary_energy = 100 * constants::electron_volt;
+    
+    // Placeholder. To be replaced by a GetLowEnergy() kind of function
+    double low_energy_limit = 10;
+    
+    // If below energy limit, stop
+    if (gamma_initial_energy <= low_energy_limit)
+    {
+        return;
+    }
+    
+    double gamma_initial_energy_per_mc2 =
+    gamma_initial_energy / constants::electron_mass_c2;
+    
+    //
+    //G4ThreeVector gamma_initial_direction = aDynamicGamma->GetMomentumDirection();
+    
+    //
+    // sample the energy rate of the scattered gamma
+    //
+    
+    double epsilon, epsilon_squared;
+    double one_minus_cosTheta, sinTheta_squared;
+    double g_rejection_function;
+    
+    double epsilon_0 = 1. / (1. + 2. * gamma_initial_energy_per_mc2);
+    double epsilon_0_squared = epsilon_0 * epsilon_0;
+    double alpha_1 = - std::log(epsilon_0);
+    double alpha_2 = alpha_1 + 0.5*(1.- epsilon_0_squared);
+    
+    double random_array[3];
+    
+    static const int loop_limit = 1000;
+    
+    // False interaction if there are too many interations
+    for (int loop = 0; loop < loop_limit; loop++)
+    {
+        // Selecting 3 random numbers to sample scattering
+        // Need to use Celeritas' Random, but that is not ready
+        // Adding fixed numbers as placeholders
+        // Random numbers must be of type random.Uniform(0, 1)
+        
+        random_array[3] = {0.2, 0.4, 0.8}; // FIX RANDOM NUMBER
+        
+        if (alpha_1 > alpha_2 * random_array[0])
+        {
+            epsilon = std::exp(-alpha_1 * random_array[1]); // epsilon_0^r
+            epsilon_squared = epsilon * epsilon;
+        }
+        
+        else
+        {
+            epsilon_squared =
+            epsilon_0_squared + (1. - epsilon_0_squared) * random_array[1];
+            epsilon = std::sqrt(epsilon_squared);
+        }
+        
+        one_minus_cosTheta =
+        (1. - epsilon) / (epsilon * gamma_initial_energy_per_mc2);
+        
+        sinTheta_squared = one_minus_cosTheta * (2. - one_minus_cosTheta);
+        
+        g_rejection_function =
+        1. - epsilon * sinTheta_squared / (1. + epsilon_squared);
+        
+        if (g_rejection_function >= random_array[2])
+        {
+            break;
+        }
+    }
+    
+    // scattered gamma angles (z-axis along the parent gamma)
+    if (sinTheta_squared < 0.0)
+    {
+        sinTheta_squared = 0.0;
+    }
+    
+    // Placeholder for a random.Uniform() number for Phi.
+    double a_random_uniform = 0.5;
+    
+    double cosTheta = 1. - one_minus_cosTheta;
+    double sinTheta = std::sqrt(sinTheta_squared);
+    double Phi = constants::two_pi * a_random_uniform; // FIX RANDOM NUMBER
+    
+    
+    
+    //------------ Update particle info for the scattered gamma -------------//
+    /*
+    // USE THREEVECTOR CLASS
+    G4ThreeVector gamma_final_direction(sinTheta*cos(Phi),
+                                        sinTheta*sin(Phi),
+                                        cosTheta);
+
+    gamma_final_direction.rotateUz(gamma_initial_direction);
+    
+    double gamma_final_energy = epsilon * gamma_initial_energy;
+    double energy_deposited = 0.0;
+    
+    if (gamma_final_energy > lowest_secondary_energy)
+    {
+        fParticleChange->ProposeMomentumDirection(gamma_final_direction);
+        fParticleChange->SetProposedKineticEnergy(gamma_final_energy);
+    }
+    
+    else
+    {
+        fParticleChange->ProposeTrackStatus(fStopAndKill);
+        fParticleChange->SetProposedKineticEnergy(0.0);
+        energy_deposited = gamma_final_energy;
+    }
+    
+    //
+    // kinematic of the scattered electron
+    //
+    
+    double electron_kinetic_energy = gamma_initial_energy - gamma_final_energy;
+    
+    if (electron_kinetic_energy > lowest_secondary_energy)
+    {
+        G4ThreeVector eDirection = gamma_initial_energy*gamma_initial_direction - gamma_final_energy*gamma_final_direction;
+        eDirection = eDirection.unit();
+        
+        // create G4DynamicParticle object for the electron.
+        G4DynamicParticle* dp = new G4DynamicParticle(theElectron,eDirection,electron_kinetic_energy);
+        fvect->push_back(dp);
+    }
+    
+    else
+    {
+        energy_deposited += electron_kinetic_energy;
+    }
+    
+    // energy balance
+    if (energy_deposited > 0.0)
+    {
+        fParticleChange->ProposeLocalEnergyDeposit(energy_deposited);
+    }
+     */
 }
 
 
