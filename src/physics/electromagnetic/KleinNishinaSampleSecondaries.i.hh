@@ -10,6 +10,7 @@
 
 #include "base/Assert.hh"
 #include "physics/base/ConstantsAndUnits.hh"
+#include "physics/base/ThreeVector.hh"
 #include "KleinNishinaSampleSecondaries.hh"
 
 
@@ -24,15 +25,17 @@ KleinNishinaSampleSecondaries::KleinNishinaSampleSecondaries()
 
 // Need to correct the operator() input parameters
 void KleinNishinaSampleSecondaries::operator()(double parameter) const;
-
-    // The scattered gamma energy is sampled according to Klein - Nishina formula.
+{
+    // The scattered gamma energy is sampled according to Klein - Nishina
+    // formula.
     // The random number techniques of Butcher & Messel are used
     // (Nuc Phys 20(1960),15).
-    // Note : Effects due to binding of atomic electrons are negliged.
+    // Note: Effects due to binding of atomic electrons are negliged.
     
     // Placeholder. To be replaced by a particle->GetEnergy() kind of function
     double gamma_initial_energy = 10;
-    double lowest_secondary_energy = 100 * constants::electron_volt;
+
+    double const lowest_secondary_energy = 100 * constants::electron_volt;
     
     // Placeholder. To be replaced by a GetLowEnergy() kind of function
     double low_energy_limit = 10;
@@ -97,19 +100,20 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
         g_rejection_function =
         1. - epsilon * sinTheta_squared / (1. + epsilon_squared);
         
+        // Testing the rejection function. Accept epsilon, otherwise repeat
         if (g_rejection_function >= random_array[2])
         {
             break;
         }
     }
     
-    // scattered gamma angles (z-axis along the parent gamma)
+    // Scattered gamma angles (z-axis along the parent gamma)
     if (sinTheta_squared < 0.0)
     {
         sinTheta_squared = 0.0;
     }
     
-    // Placeholder for a random.Uniform() number for Phi.
+    // Placeholder for a random.Uniform() number for Phi
     double a_random_uniform = 0.5;
     
     double cosTheta = 1. - one_minus_cosTheta;
@@ -119,14 +123,16 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     
     
     //------------ Update particle info for the scattered gamma -------------//
+    
     /*
-    // USE THREEVECTOR CLASS
-    G4ThreeVector gamma_final_direction(sinTheta*cos(Phi),
-                                        sinTheta*sin(Phi),
-                                        cosTheta);
-
+    ThreeVector gamma_final_direction(sinTheta * std::cos(Phi),
+                                      sinTheta * std::sin(Phi),
+                                      cosTheta);
+        
+    // WHY?
     gamma_final_direction.rotateUz(gamma_initial_direction);
     
+     
     double gamma_final_energy = epsilon * gamma_initial_energy;
     double energy_deposited = 0.0;
     

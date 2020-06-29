@@ -14,76 +14,111 @@ namespace celeritas {
  * Construct with defaults.
  */
 ThreeVector::ThreeVector()
-: dirX_(0), dirY_(0), dirZ_(0)
+: x_(0), y_(0), z_(0), magnitude_(0), theta_(0), phi_(0)
 {}
 
-//------------------------------- Operator () -------------------------------//
-ThreeVector ThreeVector::operator()(double dirX, double dirY, double dirZ)
+ThreeVector::ThreeVector(double x, double y, double z)
+: x_(x), y_(y), z_(z)
 {
-    REQUIRE(dirX >= -1.0 && dirX <= 1.0);
-    REQUIRE(dirY >= -1.0 && dirY <= 1.0);
-    REQUIRE(dirZ >= -1.0 && dirZ <= 1.0);
-            
-    this->dirX_ = dirX;
-    this->dirY_ = dirY;
-    this->dirZ_ = dirZ;
+    this->magnitude_ = std::sqrt(x*x + y*y + z*z);
+
+    this->dirX_ = this->x_ / this->magnitude_;
+    this->dirY_ = this->y_ / this->magnitude_;
+    this->dirZ_ = this->z_ / this->magnitude_;
+    
+    this->theta_ = std::asin(this->z_ / this->magnitude_);
+    this->phi_ = std::acos(this->x_ / (this->magnitude_*std::cos(this->theta_)));
+}
+
+
+
+//-------------------------------- Operators --------------------------------//
+ThreeVector ThreeVector::operator()(double x, double y, double z)
+{
+    this->x_ = x;
+    this->y_ = y;
+    this->z_ = z;
+    
+    this->magnitude_ = std::sqrt(x*x + y*y + z*z);
+
+    this->dirX_ = this->x_ / this->magnitude_;
+    this->dirY_ = this->y_ / this->magnitude_;
+    this->dirZ_ = this->z_ / this->magnitude_;
+    
+    this->theta_ = std::asin(this->z_ / this->magnitude_);
+    this->phi_ = std::acos(this->x_ / (this->magnitude_*std::cos(this->theta_)));
     
     return *this;
 }
 
+ThreeVector ThreeVector::operator+(ThreeVector A)
+{
+    ThreeVector C(this->GetX() + A.GetX(),
+                  this->GetY() + A.GetY(),
+                  this->GetZ() + A.GetZ());
+    return C;
+}
+
+ThreeVector ThreeVector::operator-(ThreeVector A)
+{
+    ThreeVector C(this->GetX() - A.GetX(),
+                  this->GetY() - A.GetY(),
+                  this->GetZ() - A.GetZ());
+    return C;
+}
+
+ThreeVector ThreeVector::operator*(double A)
+{
+    ThreeVector C(A * this->GetX(), A * this->GetY(), A * this->GetZ());
+    return C;
+}
+
+
 //--------------------------------- Getters ---------------------------------//
+double ThreeVector::GetX()
+{
+    return this->x_;
+}
+
+double ThreeVector::GetY()
+{
+    return this->y_;
+}
+
+double ThreeVector::GetZ()
+{
+    return this->z_;
+}
+
+double ThreeVector::GetMagnitude()
+{
+    return this->magnitude_;
+}
+
 double ThreeVector::GetDirX()
 {
-    return (this->dirX_);
+    return this->dirX_;
 }
 
 double ThreeVector::GetDirY()
 {
-    return (this->dirY_);
+    return this->dirY_;
 }
 
 double ThreeVector::GetDirZ()
 {
-    return (this->dirZ_);
+    return this->dirZ_;
 }
 
-//--------------------------------- Setters ---------------------------------//
-void ThreeVector::SetDirection(ThreeVector &threeVector)
+double ThreeVector::GetTheta()
 {
-    this->dirX_ = threeVector.GetDirX();
-    this->dirY_ = threeVector.GetDirY();
-    this->dirZ_ = threeVector.GetDirZ();
+    return this->theta_;
 }
 
-void ThreeVector::SetDirection(double dirX, double dirY, double dirZ)
+double ThreeVector::GetPhi()
 {
-    REQUIRE(dirX >= -1.0 && dirX <= 1.0);
-    REQUIRE(dirY >= -1.0 && dirY <= 1.0);
-    REQUIRE(dirZ >= -1.0 && dirZ <= 1.0);
-    
-    this->dirX_ = dirX;
-    this->dirY_ = dirY;
-    this->dirZ_ = dirZ;
+    return this->phi_;
 }
-
-void ThreeVector::SetDirX(double dirX)
-{
-    REQUIRE(dirX >= -1.0 && dirX <= 1.0);
-    this->dirX_ = dirX;
-}
-
-void ThreeVector::SetDirY(double dirY)
-{
-    REQUIRE(dirY >= -1.0 && dirY <= 1.0);
-    this->dirY_ = dirY;
-}
-
-void ThreeVector::SetDirZ(double dirZ)
-{
-    REQUIRE(dirZ >= -1.0 && dirZ <= 1.0);
-    this->dirZ_ = dirZ;
-}
-
 
 //---------------------------------------------------------------------------//
 }  // namespace celeritas

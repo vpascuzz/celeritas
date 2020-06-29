@@ -8,6 +8,7 @@
 #ifndef physics_base_ThreeVector_hh
 #define physics_base_ThreeVector_hh
 
+#include <cmath>
 #include "base/Assert.hh"
 
 namespace celeritas {
@@ -19,29 +20,43 @@ namespace celeritas {
 class ThreeVector
 {
   protected:
-      double dirX_;
-      double dirY_;
-      double dirZ_;
+    double x_;
+    double y_;
+    double z_;
+    double magnitude_;
+    double dirX_;
+    double dirY_;
+    double dirZ_;
+    double theta_;
+    double phi_;
     
   public:
     // Construct with defaults
     inline ThreeVector();
+    inline ThreeVector(double x, double y, double z);
+
     
-    // Operator ()
-    inline ThreeVector operator()(double dirX, double dirY, double dirZ);
+    // Operators
+    inline ThreeVector operator()(double x, double y, double z);
+    inline ThreeVector operator+(ThreeVector A);
+    inline ThreeVector operator-(ThreeVector A);
+    inline ThreeVector operator*(double A);
     
+    // Dot and cross products not included
+
     // Getters
+    inline double GetX();
+    inline double GetY();
+    inline double GetZ();
+
+    inline double GetMagnitude();
+    
     inline double GetDirX();
     inline double GetDirY();
     inline double GetDirZ();
-        
-    // Setters
-    inline void SetDirection(ThreeVector &threeVector);
-    inline void SetDirection(double dirX, double dirY, double dirZ);
-
-    inline void SetDirX(double dirX);
-    inline void SetDirY(double dirY);
-    inline void SetDirZ(double dirZ);
+    
+    inline double GetTheta();
+    inline double GetPhi();
 };
 
 //---------------------------------------------------------------------------//
