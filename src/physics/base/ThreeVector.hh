@@ -14,7 +14,7 @@
 namespace celeritas {
 //---------------------------------------------------------------------------//
 /*!
- * Brief class description.
+ * Class for dealing with 3D vectors
  */
 
 class ThreeVector
@@ -31,32 +31,33 @@ class ThreeVector
     double phi_;
     
   public:
-    // Construct with defaults
+    // Constructors
     inline ThreeVector();
     inline ThreeVector(double x, double y, double z);
 
-    
     // Operators
     inline ThreeVector operator()(double x, double y, double z);
     inline ThreeVector operator+(ThreeVector A);
     inline ThreeVector operator-(ThreeVector A);
     inline ThreeVector operator*(double A);
-    
-    // Dot and cross products not included
+    inline ThreeVector operator*(int A);
+    inline ThreeVector operator=(ThreeVector A);
+        
+    // Should we add dot and cross products?
 
     // Getters
-    inline double GetX();
-    inline double GetY();
-    inline double GetZ();
+    inline double x();
+    inline double y();
+    inline double z();
 
-    inline double GetMagnitude();
+    inline double magnitude();
     
-    inline double GetDirX();
-    inline double GetDirY();
-    inline double GetDirZ();
+    inline double dirX();
+    inline double dirY();
+    inline double dirZ();
     
-    inline double GetTheta();
-    inline double GetPhi();
+    inline double theta();
+    inline double phi();
 };
 
 //---------------------------------------------------------------------------//

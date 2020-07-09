@@ -32,12 +32,19 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     // (Nuc Phys 20(1960),15).
     // Note: Effects due to binding of atomic electrons are negliged.
     
-    // Placeholder. To be replaced by a particle->GetEnergy() kind of function
+    // Placeholder. To be replaced by a particle->GetEnergy() type function
     double gamma_initial_energy = 10;
-
-    double const lowest_secondary_energy = 100 * constants::electron_volt;
     
-    // Placeholder. To be replaced by a GetLowEnergy() kind of function
+    // Placeholder. Change if needed
+    double const pi = 3.14159265358979323846;
+    double const two_pi  = 2 * pi;
+
+    double const speed_of_light_squared = 1.;
+    double const electron_mass_c2 = 0.51099891 * speed_of_light_squared;
+
+    double const lowest_secondary_energy = 100 * units::electron_volt;
+    
+    // Placeholder. To be replaced by a GetLowEnergy() type function
     double low_energy_limit = 10;
     
     // If below energy limit, stop
@@ -47,15 +54,19 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     }
     
     double gamma_initial_energy_per_mc2 =
-    gamma_initial_energy / constants::electron_mass_c2;
+    gamma_initial_energy / electron_mass_c2;
     
-    //
+    // Original G4 code
     //G4ThreeVector gamma_initial_direction = aDynamicGamma->GetMomentumDirection();
+    
+    
+    // Testing with a one axis direction to get a delta
+    ThreeVector gamma_initial_direction(1, 0, 0);
+    
     
     //
     // sample the energy rate of the scattered gamma
     //
-    
     double epsilon, epsilon_squared;
     double one_minus_cosTheta, sinTheta_squared;
     double g_rejection_function;
@@ -63,7 +74,7 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     double epsilon_0 = 1. / (1. + 2. * gamma_initial_energy_per_mc2);
     double epsilon_0_squared = epsilon_0 * epsilon_0;
     double alpha_1 = - std::log(epsilon_0);
-    double alpha_2 = alpha_1 + 0.5*(1.- epsilon_0_squared);
+    double alpha_2 = alpha_1 + 0.5 * (1. - epsilon_0_squared);
     
     double random_array[3];
     
@@ -118,51 +129,58 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     
     double cosTheta = 1. - one_minus_cosTheta;
     double sinTheta = std::sqrt(sinTheta_squared);
-    double Phi = constants::two_pi * a_random_uniform; // FIX RANDOM NUMBER
+    double Phi = two_pi * a_random_uniform; // FIX RANDOM NUMBER AND TWO_PI
     
     
     
     //------------ Update particle info for the scattered gamma -------------//
     
-    /*
     ThreeVector gamma_final_direction(sinTheta * std::cos(Phi),
                                       sinTheta * std::sin(Phi),
                                       cosTheta);
         
-    // WHY?
-    gamma_final_direction.rotateUz(gamma_initial_direction);
+    // Original G4 code
+    //gamma_final_direction.rotateUz(gamma_initial_direction);
     
      
     double gamma_final_energy = epsilon * gamma_initial_energy;
     double energy_deposited = 0.0;
     
+    
     if (gamma_final_energy > lowest_secondary_energy)
     {
-        fParticleChange->ProposeMomentumDirection(gamma_final_direction);
-        fParticleChange->SetProposedKineticEnergy(gamma_final_energy);
+        //fParticleChange->ProposeMomentumDirection(gamma_final_direction);
+        //fParticleChange->SetProposedKineticEnergy(gamma_final_energy);
     }
     
     else
     {
-        fParticleChange->ProposeTrackStatus(fStopAndKill);
-        fParticleChange->SetProposedKineticEnergy(0.0);
+        //fParticleChange->ProposeTrackStatus(fStopAndKill);
+        //fParticleChange->SetProposedKineticEnergy(0.0);
         energy_deposited = gamma_final_energy;
     }
     
-    //
-    // kinematic of the scattered electron
-    //
-    
+    // Kinematics of the scattered electron
     double electron_kinetic_energy = gamma_initial_energy - gamma_final_energy;
     
     if (electron_kinetic_energy > lowest_secondary_energy)
     {
-        G4ThreeVector eDirection = gamma_initial_energy*gamma_initial_direction - gamma_final_energy*gamma_final_direction;
-        eDirection = eDirection.unit();
+        // Original G4 code
+        //G4ThreeVector eDirection = gamma_initial_energy*gamma_initial_direction - gamma_final_energy*gamma_final_direction;
         
+        ThreeVector electron_final_direction =
+        gamma_initial_direction * gamma_initial_energy -
+        gamma_final_direction * gamma_final_energy;
+        
+        electron_final_direction(electron_final_direction.dirX(),
+                                 electron_final_direction.dirY(),
+                                 electron_final_direction.dirZ());
+        
+        
+        // Original G4 code
         // create G4DynamicParticle object for the electron.
-        G4DynamicParticle* dp = new G4DynamicParticle(theElectron,eDirection,electron_kinetic_energy);
-        fvect->push_back(dp);
+        //G4DynamicParticle* dp = new G4DynamicParticle(theElectron,eDirection,electron_kinetic_energy);
+        //fvect->push_back(dp);
     }
     
     else
@@ -173,9 +191,8 @@ void KleinNishinaSampleSecondaries::operator()(double parameter) const;
     // energy balance
     if (energy_deposited > 0.0)
     {
-        fParticleChange->ProposeLocalEnergyDeposit(energy_deposited);
+        //fParticleChange->ProposeLocalEnergyDeposit(energy_deposited);
     }
-     */
 }
 
 

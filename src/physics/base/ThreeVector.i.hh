@@ -11,7 +11,7 @@
 namespace celeritas {
 //---------------------------------------------------------------------------//
 /*!
- * Construct with defaults.
+ * Constructors
  */
 ThreeVector::ThreeVector()
 : x_(0), y_(0), z_(0), magnitude_(0), theta_(0), phi_(0)
@@ -32,7 +32,10 @@ ThreeVector::ThreeVector(double x, double y, double z)
 
 
 
-//-------------------------------- Operators --------------------------------//
+//---------------------------------------------------------------------------//
+/*!
+ * Operators
+ */
 ThreeVector ThreeVector::operator()(double x, double y, double z)
 {
     this->x_ = x;
@@ -53,69 +56,89 @@ ThreeVector ThreeVector::operator()(double x, double y, double z)
 
 ThreeVector ThreeVector::operator+(ThreeVector A)
 {
-    ThreeVector C(this->GetX() + A.GetX(),
-                  this->GetY() + A.GetY(),
-                  this->GetZ() + A.GetZ());
+    ThreeVector C(this->x() + A.x(),
+                  this->y() + A.y(),
+                  this->z() + A.z());
     return C;
 }
 
 ThreeVector ThreeVector::operator-(ThreeVector A)
 {
-    ThreeVector C(this->GetX() - A.GetX(),
-                  this->GetY() - A.GetY(),
-                  this->GetZ() - A.GetZ());
+    ThreeVector C(this->x() - A.x(),
+                  this->y() - A.y(),
+                  this->z() - A.z());
     return C;
 }
 
 ThreeVector ThreeVector::operator*(double A)
 {
-    ThreeVector C(A * this->GetX(), A * this->GetY(), A * this->GetZ());
+    ThreeVector C(A * this->x(), A * this->y(), A * this->z());
+    
     return C;
 }
 
+ThreeVector ThreeVector::operator*(int A)
+{
+    ThreeVector C(A * this->x(), A * this->y(), A * this->z());
+    
+    return C;
+}
 
-//--------------------------------- Getters ---------------------------------//
-double ThreeVector::GetX()
+ThreeVector ThreeVector::operator=(ThreeVector A)
+{
+    this->x_ = A.x();
+    this->y_ = A.y();
+    this->z_ = A.z();
+    
+    return *this;
+}
+
+
+//---------------------------------------------------------------------------//
+/*!
+ * Getters
+ */
+double ThreeVector::x()
 {
     return this->x_;
 }
 
-double ThreeVector::GetY()
+double ThreeVector::y()
 {
     return this->y_;
 }
 
-double ThreeVector::GetZ()
+double ThreeVector::z()
 {
     return this->z_;
 }
 
-double ThreeVector::GetMagnitude()
+double ThreeVector::magnitude()
 {
     return this->magnitude_;
 }
 
-double ThreeVector::GetDirX()
+double ThreeVector::dirX()
 {
     return this->dirX_;
 }
 
-double ThreeVector::GetDirY()
+double ThreeVector::dirY()
 {
     return this->dirY_;
 }
 
-double ThreeVector::GetDirZ()
+double ThreeVector::dirZ()
 {
     return this->dirZ_;
 }
 
-double ThreeVector::GetTheta()
+double ThreeVector::theta()
 {
     return this->theta_;
 }
 
-double ThreeVector::GetPhi()
+double ThreeVector::phi()
 {
     return this->phi_;
 }
