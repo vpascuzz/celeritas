@@ -2,7 +2,6 @@
 Celeritas development
 =====================
 
-
 Core guidelines
 ===============
 
@@ -204,7 +203,8 @@ allocated and managed.
 Store
   Generic name for a class that manages GPU data by means of a host class,
   using ``celeritas::DeviceVector`` (or ``thrust`` or ``VecGeom`` wrappers as
-  needed) to manage the on-device data.
+  needed) to manage the on-device data. Use DeviceVectors for containers that
+  don't need to be resized or initialized (i.e. have "plain old data").
 
 Params (model parameters)
   Provide a CPU-based interface to manage and provide access to constant shared
