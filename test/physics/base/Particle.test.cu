@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------//
 //! \file Particle.test.cu
 //---------------------------------------------------------------------------//
+#include "physics/base/Particle.hh"
 #include "Particle.test.hh"
 
 #include <thrust/device_vector.h>
@@ -18,11 +19,11 @@ namespace celeritas_test
 // KERNELS
 //---------------------------------------------------------------------------//
 
-__global__ void p_test_kernel(unsigned int       size,
-                              ParticleParamsView params,
-                              ParticleStateView  states,
-                              const PTestInit*   init,
-                              double*            result)
+__global__ void p_test_kernel(unsigned int             size,
+                              ParticleParamsView       params,
+                              ParticleStateView        states,
+                              const ParticleStateVars* init,
+                              double*                  result)
 {
     auto local_thread_id = celeritas::KernelParamCalculator::thread_id();
     if (!(local_thread_id < size))
@@ -36,7 +37,7 @@ __global__ void p_test_kernel(unsigned int       size,
     result += local_thread_id.get() * PTestOutput::props_per_thread();
 
     // Calculate/write values from Particle
-    CHECK(p.particle_type() == init[local_thread_id.get()]->type);
+    CHECK(p.particle_type() == init[local_thread_id.get()].particle_type);
     *result++ = p.kinetic_energy();
     *result++ = p.mass();
     *result++ = p.elem_charge();
@@ -53,7 +54,7 @@ __global__ void p_test_kernel(unsigned int       size,
 //! Run on device and return results
 PTestOutput p_test(PTestInput input)
 {
-    thrust::device_vector<PTestInit> init = input.init;
+    thrust::device_vector<ParticleStateVars> init = input.init;
     thrust::device_vector<double>    result(init.size()
                                          * PTestOutput::props_per_thread());
 
@@ -61,13 +62,15 @@ PTestOutput p_test(PTestInput input)
     auto                             params = calc_launch_params(init.size());
     p_test_kernel<<<params.grid_size, params.block_size>>>(
         init.size(),
-        init.params,
-        init.states,
+        input.params,
+        input.states,
         raw_pointer_cast(init.data()),
         raw_pointer_cast(result.data()));
 
-    PTestOutput result;
-    return result;
+    PTestOutput output;
+    output.props.resize(result.size());
+    thrust::copy(result.begin(), result.end(), output.props.begin());
+    return output;
 }
 
 //---------------------------------------------------------------------------//

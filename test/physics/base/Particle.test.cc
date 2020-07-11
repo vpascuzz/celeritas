@@ -13,7 +13,7 @@
 #include "gmock/gmock.h"
 #include "base/Array.hh"
 #include "physics/base/ParticleParams.hh"
-#include "physics/base/ParticleState.hh"
+#include "physics/base/ParticleStateStore.hh"
 #include "physics/base/ParticleStateView.hh"
 #include "physics/base/Units.hh"
 #include "Particle.test.hh"
@@ -23,7 +23,7 @@ using celeritas::ParticleDef;
 using celeritas::ParticleDefId;
 using celeritas::ParticleParams;
 using celeritas::ParticleParamsView;
-using celeritas::ParticleState;
+using celeritas::ParticleStateStore;
 using celeritas::ParticleStateView;
 
 using celeritas::real_type;
@@ -151,7 +151,7 @@ TEST_F(ParticleTestDevice, calc_props)
                   {ParticleDefId{1}, 10 * units::mega_electron_volt},
                   {ParticleDefId{2}, 20 * units::mega_electron_volt}};
 
-    ParticleState pstates(input.init.size());
+    ParticleStateStore pstates(input.init.size());
     input.params = particle_params->device_view();
     input.states = pstates.device_view();
 
@@ -159,7 +159,10 @@ TEST_F(ParticleTestDevice, calc_props)
     auto result = p_test(input);
 
     // Check results
-    static const double expected_props[] = {0, 1, 0, 0, 2.5, 0, 0};
+    static const double expected_props[] = {
+        0.5, 0.510999, -1, 0,          0.862862, 1.97848, 0.872353, 0.760999,
+        10,  0,        0,  0,          1,        -1,      10,       100,
+        20,  939.565,  0,  0.00113714, 0.203104, 1.02129, 194.891,  37982.6};
     EXPECT_THAT(result.props, ElementsAreArray(expected_props));
 }
 #endif
