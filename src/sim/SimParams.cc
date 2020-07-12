@@ -16,9 +16,7 @@ namespace celeritas
 /*!
  * \brief Construct with a vector of particle definitions
  */
-SimParams::SimParams()
-{
-}
+SimParams::SimParams() {}
 
 //---------------------------------------------------------------------------//
 /*!

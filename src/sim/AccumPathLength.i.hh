@@ -38,9 +38,7 @@ CELER_CONSTEXPR_FUNCTION AccumPathLength AccumPathLength::infinity()
 /*!
  * Construct with invalid path length.
  */
-CELER_CONSTEXPR_FUNCTION AccumPathLength::AccumPathLength() : distance_(-1)
-{
-}
+CELER_CONSTEXPR_FUNCTION AccumPathLength::AccumPathLength() : distance_(-1) {}
 
 //---------------------------------------------------------------------------//
 /*!
