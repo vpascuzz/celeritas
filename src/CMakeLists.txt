@@ -28,6 +28,7 @@ list(APPEND SOURCES
   comm/Utils.cc
   physics/base/ParticleParams.cc
   physics/base/ParticleStateStore.cc
+  physics/base/SecondaryStackStore.cc
   sim/SimParams.cc
   sim/SimStateStore.cc
 )

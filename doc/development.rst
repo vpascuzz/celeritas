@@ -192,6 +192,10 @@ self-documenting. Avoid shorthand and "transliterated" mathematical
 expressions: prefer ``constants::avogadro`` to ``N_A`` or express the constant
 functionally with ``atoms_per_mole``.
 
+Use scoped enumerations (``enum class``) where possible (named like classes) so
+their values can safely be named like member variables (lowercase with
+underscores).
+
 Data management
 ===============
 
