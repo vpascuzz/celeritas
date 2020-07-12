@@ -3,38 +3,32 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file SimParams.cc
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
+#include "SimParams.hh"
 
-#include <cstddef>
-#include "OpaqueId.hh"
+#include "base/Macros.hh"
+#include "celeritas_config.h"
 
 namespace celeritas
 {
-template<typename T, std::size_t N>
-class array;
-
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * \brief Construct with a vector of particle definitions
+ */
+SimParams::SimParams()
 {
-    Linear,
-    Log
-};
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Get a view to the managed data.
+ */
+SimParamsView SimParams::device_view() const
+{
+    SimParamsView result;
+    return result;
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-#endif // base_Types_hh

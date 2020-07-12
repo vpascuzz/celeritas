@@ -3,38 +3,33 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file Sim.i.hh
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
-
-#include <cstddef>
-#include "OpaqueId.hh"
 
 namespace celeritas
 {
-template<typename T, std::size_t N>
-class array;
-
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * Construct from persistent and local data.
+ */
+CELER_FUNCTION
+Sim::Sim(const SimParamsView& params, const SimStateView& states, ThreadId id)
+    : params_(params), state_(states.vars[id.get()])
 {
-    Linear,
-    Log
-};
+    REQUIRE(id < states.vars.size());
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Initialize the particle
+ */
+CELER_FUNCTION Sim& Sim::operator=(const Initializer_t& other)
+{
+    REQUIRE(other.particle_type < params_.defs.size());
+    REQUIRE(other.kinetic_energy > 0);
+    state_ = other;
+    return *this;
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-#endif // base_Types_hh

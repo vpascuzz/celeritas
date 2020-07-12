@@ -3,38 +3,40 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file SimStateStore.hh
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
+#ifndef sim_SimState_hh
+#define sim_SimState_hh
 
-#include <cstddef>
-#include "OpaqueId.hh"
+#include "base/DeviceVector.hh"
+#include "base/Types.hh"
+#include "SimStateView.hh"
 
 namespace celeritas
 {
-template<typename T, std::size_t N>
-class array;
-
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * Manage on-device particle physics states.
+ */
+class SimStateStore
 {
-    Linear,
-    Log
+  public:
+    // Construct from number of track states
+    explicit SimStateStore(size_type size);
+
+    // >>> ACCESSORS
+
+    // Number of states
+    size_type size() const;
+
+    // View on-device states
+    SimStateView device_view();
+
+  private:
+    DeviceVector<SimStateVars> vars_;
 };
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
 
-#endif // base_Types_hh
+#endif // sim_SimState_hh

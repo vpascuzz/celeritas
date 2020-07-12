@@ -28,6 +28,8 @@ list(APPEND SOURCES
   comm/Utils.cc
   physics/base/ParticleParams.cc
   physics/base/ParticleStateStore.cc
+  sim/SimParams.cc
+  sim/SimStateStore.cc
 )
 
 if(CELERITAS_USE_CUDA)

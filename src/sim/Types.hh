@@ -5,36 +5,21 @@
 //---------------------------------------------------------------------------//
 //! \file Types.hh
 //---------------------------------------------------------------------------//
-#ifndef base_Types_hh
-#define base_Types_hh
-
-#include <cstddef>
-#include "OpaqueId.hh"
+#ifndef sim_Types_hh
+#define sim_Types_hh
 
 namespace celeritas
 {
-template<typename T, std::size_t N>
-class array;
-
-struct Thread;
-//---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
+struct Action;
+struct Event;
+struct Track;
 //---------------------------------------------------------------------------//
 
-enum class Interp
-{
-    Linear,
-    Log
-};
+using ActionId = OpaqueId<Action>;
+using EventId  = OpaqueId<Event>;
+using TrackId  = OpaqueId<Track>;
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
 
-#endif // base_Types_hh
+#endif // sim_Types_hh
