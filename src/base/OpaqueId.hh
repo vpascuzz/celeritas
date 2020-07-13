@@ -9,6 +9,9 @@
 #define base_OpaqueId_hh
 
 #include <cstddef>
+#ifndef __CUDA_ARCH__
+#    include <functional>
+#endif
 #include "Assert.hh"
 #include "Macros.hh"
 
@@ -63,14 +66,6 @@ class OpaqueId
         return value_;
     }
 
-    //! Whether the ID is a valid index for the given container
-    template<class Container>
-    CELER_FUNCTION bool is_valid_index_for(const Container& c) const
-    {
-        using csize_type = decltype(c.size());
-        return static_cast<csize_type>(this->unchecked_get()) < c.size();
-    }
-
   private:
     // >>> DATA
 
@@ -120,7 +115,7 @@ CELER_CONSTEXPR_FUNCTION bool operator<(OpaqueId<I, T> lhs, U rhs)
 
 //! Get the number of IDs enclosed by two opaque IDs.
 template<class I, class T>
-CELER_INLINE_FUNCTION T operator-(OpaqueId<I, T> self, OpaqueId<I, T> other)
+inline CELER_FUNCTION T operator-(OpaqueId<I, T> self, OpaqueId<I, T> other)
 {
     REQUIRE(self);
     REQUIRE(other);
@@ -130,8 +125,7 @@ CELER_INLINE_FUNCTION T operator-(OpaqueId<I, T> self, OpaqueId<I, T> other)
 //---------------------------------------------------------------------------//
 } // namespace celeritas
 
-#ifndef __NVCC__
-#    include <functional>
+#ifndef __CUDA_ARCH__
 //---------------------------------------------------------------------------//
 /*!
  * \brief Specialization for std::hash for unordered storage.

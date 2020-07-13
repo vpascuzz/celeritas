@@ -28,11 +28,25 @@ target_include_directories(CeleritasTest
 
 include(CeleritasAddTest)
 
+function(add_cudaoptional_test base)
+  if(CELERITAS_USE_CUDA)
+    set(_sources SOURCES "${base}.test.cu")
+  endif()
+  celeritas_add_test("${base}.test.cc" ${_sources} ${ARGN})
+endfunction()
+
+if(NOT CELERITAS_USE_CUDA)
+  set(_needs_cuda DISABLE)
+endif()
+
 #-----------------------------------------------------------------------------#
 # Base
 
 celeritas_setup_tests(SERIAL PREFIX base)
+
 celeritas_add_test(base/Array.test.cc)
+celeritas_add_test(base/DeviceAllocation.test.cc)
+celeritas_add_test(base/DeviceVector.test.cc)
 celeritas_add_test(base/Interpolator.test.cc)
 celeritas_add_test(base/OpaqueId.test.cc)
 celeritas_add_test(base/Range.test.cc)
@@ -50,7 +64,15 @@ endif()
 # Comm
 
 celeritas_setup_tests(PREFIX comm)
+
 celeritas_add_test(comm/Communicator.test.cc)
+
+#-----------------------------------------------------------------------------#
+# Physics
+
+celeritas_setup_tests(SERIAL PREFIX physics/base)
+
+add_cudaoptional_test(physics/base/Particle)
 
 #-----------------------------------------------------------------------------#
 # Random
@@ -68,10 +90,16 @@ endif()
 #-----------------------------------------------------------------------------#
 # Physics
 
-celeritas_setup_tests(PREFIX physics_base)
+celeritas_setup_tests(PREFIX physics/base)
 celeritas_add_test(physics/base/ThreeVector.test.cc)
 
-celeritas_setup_tests(PREFIX physics_electromagnetic)
+celeritas_setup_tests(PREFIX physics/electromagnetic)
 celeritas_add_test(physics/electromagnetic/KleinNishinaXSCalculator.test.cc)
 
 
+#-----------------------------------------------------------------------------#
+# Sim
+
+celeritas_add_test(sim/AccumPathLength.test.cc)
+
+#-----------------------------------------------------------------------------#
