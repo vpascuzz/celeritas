@@ -19,9 +19,9 @@ namespace celeritas
  */
 struct Interaction
 {
-    real_type delta_phi;
-    real_type energy; //!< Post-interaction energy
-    Action    action; //!< Scatter, absorption, ...
+    Real3     direction; //!< Exiting direction
+    real_type energy;    //!< Post-interaction energy
+    Action    action;    //!< Scatter, absorption, ...
 };
 
 //---------------------------------------------------------------------------//
