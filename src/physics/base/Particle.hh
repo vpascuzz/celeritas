@@ -49,8 +49,8 @@ class Particle
     // Rest mass [MeV / c^2]
     inline CELER_FUNCTION real_type mass() const;
 
-    // Elementary charge
-    inline CELER_FUNCTION real_type elem_charge() const;
+    // Charge
+    inline CELER_FUNCTION real_type charge() const;
 
     // Decay constant
     inline CELER_FUNCTION real_type decay_constant() const;

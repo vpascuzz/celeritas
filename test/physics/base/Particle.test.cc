@@ -107,7 +107,7 @@ TEST_F(ParticleTestHost, electron)
 
     EXPECT_DOUBLE_EQ(0.5, particle.kinetic_energy());
     EXPECT_DOUBLE_EQ(0.5109989461, particle.mass());
-    EXPECT_DOUBLE_EQ(-1., particle.elem_charge());
+    EXPECT_DOUBLE_EQ(-1., particle.charge());
     EXPECT_DOUBLE_EQ(0.0, particle.decay_constant());
     EXPECT_SOFT_EQ(0.86286196322132447, particle.speed()); // fraction of c
     EXPECT_SOFT_EQ(1.9784755992474248, particle.lorentz_factor());

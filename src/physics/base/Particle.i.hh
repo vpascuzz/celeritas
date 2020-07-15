@@ -73,9 +73,9 @@ CELER_FUNCTION real_type Particle::mass() const
 /*!
  * Elementary charge.
  */
-CELER_FUNCTION real_type Particle::elem_charge() const
+CELER_FUNCTION real_type Particle::charge() const
 {
-    return this->particle_def().elem_charge;
+    return this->particle_def().charge;
 }
 
 //---------------------------------------------------------------------------//
@@ -91,16 +91,22 @@ CELER_FUNCTION real_type Particle::decay_constant() const
 /*!
  * Speed [1/c].
  *
- * Speed is just momentum over mass; we calculate the relativistic momentum and
- * relativistic mass and return the ratio.
+ * Speed is calculated using the equality pc/E = v/c --> v = pc^2/E.
+ * This expression can be used to both massive and massless particles. When
+ * m = 0, p = E/c, which yields v = c.
  */
 CELER_FUNCTION real_type Particle::speed() const
 {
-    real_type relativistic_mass
-        = this->kinetic_energy() / units::speed_of_light_sq + this->mass();
+    // Calculating total energy: E = sqrt(p^c^2 + m^2c^4)
+    real_type c2 = units::speed_of_light_sq;
+    real_type c4 = c2 * c2;
+    real_type p2 = this->momentum() * this->momentum();
+    real_type m2 = this->mass() * this->mass();
 
-    ENSURE(relativistic_mass > 0);
-    return this->momentum() / relativistic_mass;
+    real_type E = std::sqrt(p2 * c2 + m2 * c4);
+    
+    // Returning v = pc^2/E
+    return this->momentum() * c2 / E;
 }
 
 //---------------------------------------------------------------------------//

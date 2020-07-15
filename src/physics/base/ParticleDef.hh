@@ -30,7 +30,7 @@ using ParticleDefId = OpaqueId<ParticleDef>;
 struct ParticleDef
 {
     real_type mass;           // Rest mass [MeV / c]
-    real_type elem_charge;    // Charge in units of [e]
+    real_type charge;         // Charge in units of [e]
     real_type decay_constant; // Decay constant [1/s]
 
     //! Value of decay_constant for a stable particle
