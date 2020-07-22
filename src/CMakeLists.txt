@@ -29,6 +29,8 @@ list(APPEND SOURCES
   physics/base/ParticleParams.cc
   physics/base/ParticleStateStore.cc
   physics/base/SecondaryStackStore.cc
+  sim/SimParams.cc
+  sim/SimStateStore.cc
 )
 
 if(CELERITAS_USE_CUDA)
