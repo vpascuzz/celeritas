@@ -47,6 +47,8 @@ __global__ void sa_test_kernel(SATestInput input, int* num_allocations)
 //! Run on device and return allocation count.
 SATestOutput sa_run(SATestInput input)
 {
+    REQUIRE(input.num_threads > 0);
+    REQUIRE(input.sa_view);
     thrust::device_vector<int> local_allocations(input.num_threads);
 
     celeritas::KernelParamCalculator calc_launch_params;

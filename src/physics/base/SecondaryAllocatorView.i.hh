@@ -3,35 +3,38 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file SecondaryAllocatorView.i.hh
 //---------------------------------------------------------------------------//
-#pragma once
-
-#include <cstddef>
-#include "Array.hh"
-#include "OpaqueId.hh"
 
 namespace celeritas
 {
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * Construct with defaults.
+ */
+CELER_FUNCTION SecondaryAllocatorView::SecondaryAllocatorView(
+    const SecondaryAllocatorPointers& shared)
+    : allocate_(shared.allocator)
 {
-    Linear,
-    Log
-};
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Allocate space for this many secondaries.
+ *
+ * Returns NULL if allocation failed due to out-of-memory.
+ */
+CELER_FUNCTION auto SecondaryAllocatorView::operator()(size_type count)
+    -> result_type
+{
+    void* alloc = this->allocate_(count * sizeof(Secondary));
+    if (CELER_UNLIKELY(!alloc))
+    {
+        // Out of memory
+        return nullptr;
+    }
+    return new (alloc) Secondary[count];
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-//---------------------------------------------------------------------------//
