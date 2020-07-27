@@ -82,6 +82,14 @@ celeritas_setup_tests(SERIAL PREFIX physics/base)
 add_cudaoptional_test(physics/base/Particle)
 
 #-----------------------------------------------------------------------------#
+# Physics (EM)
+
+celeritas_setup_tests(SERIAL PREFIX physics/em)
+
+celeritas_add_test(physics/em/KNInteractor.test.cc
+  SOURCES physics/InteractorHostTestBase.cc)
+
+#-----------------------------------------------------------------------------#
 # Random
 
 celeritas_setup_tests(SERIAL PREFIX random)
