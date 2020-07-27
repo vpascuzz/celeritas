@@ -7,6 +7,7 @@
 //---------------------------------------------------------------------------//
 
 #include "base/Assert.hh"
+#include "GenerateCanonical.hh"
 
 namespace celeritas
 {

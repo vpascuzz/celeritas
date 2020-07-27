@@ -84,6 +84,8 @@ add_cudaoptional_test(physics/base/ParticleTrackView)
 # Random
 
 celeritas_setup_tests(SERIAL PREFIX random)
+
+celeritas_add_test(random/distributions/BinaryDistribution.test.cc)
 celeritas_add_test(random/distributions/IsotropicDistribution.test.cc)
 celeritas_add_test(random/distributions/RadialDistribution.test.cc)
 celeritas_add_test(random/distributions/UniformRealDistribution.test.cc)

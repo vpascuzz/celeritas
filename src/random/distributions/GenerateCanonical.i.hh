@@ -12,35 +12,34 @@ namespace celeritas
 /*!
  * Generate random numbers in [0, 1).
  */
-template<class Generator, class T>
-CELER_FUNCTION auto GenerateCanonical<Generator, T>::operator()(Generator& rng)
+template<class Generator, class RealType>
+CELER_FUNCTION auto
+GenerateCanonical<Generator, RealType>::operator()(Generator& rng)
     -> result_type
 {
-    return std::generate_canonical<result_type,
-                                   std::numeric_limits<result_type>::digits>(
-        rng);
-}
-
-#ifdef __NVCC__
-//---------------------------------------------------------------------------//
-/*!
- * Specialization for RngEngine, float
- */
-__device__ float GenerateCanonical<RngEngine, float>::operator()(RngEngine& rng)
-{
-    return curand_uniform(rng.state_);
+    using limits_t = std::numeric_limits<result_type>;
+    return std::generate_canonical<result_type, limits_t::digits>(rng);
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * Specialization for RngEngine, double
+ * Helper function to generate a random real number in [0, 1).
  */
-__device__ double
-GenerateCanonical<RngEngine, double>::operator()(RngEngine& rng)
+template<class RealType, class Generator>
+CELER_FUNCTION RealType sample_uniform(Generator& g)
 {
-    return curand_uniform_double(rng.state_);
+    return GenerateCanonical<Generator, RealType>()();
 }
 
-#endif
+//---------------------------------------------------------------------------//
+/*!
+ * Helper function to generate a random real number in [0, 1).
+ */
+template<class Generator>
+CELER_FUNCTION real_type sample_uniform(Generator& g)
+{
+    return GenerateCanonical<Generator, real_type>()();
+}
+
 //---------------------------------------------------------------------------//
 } // namespace celeritas
