@@ -3,35 +3,33 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file Action.i.hh
 //---------------------------------------------------------------------------//
-#pragma once
-
-#include <cstddef>
-#include "Array.hh"
-#include "OpaqueId.hh"
 
 namespace celeritas
 {
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * Whether the function returning an action succeeded.
+ *
+ * This should be 'false' for (e.g.) failing to allocate memory for sampling
+ * secondaries, allowing a recoverable failure (next kernel launch retries with
+ */
+CELER_FUNCTION bool action_completed(Action a)
 {
-    Linear,
-    Log
-};
+    return a != Action::failure;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Whether the given action should kill the active track.
+ */
+CELER_FUNCTION bool action_kills(Action a)
+{
+    using enum_int = int;
+    return int(a) >= int(Action::begin_kill_)
+           && int(a) < int(Action::end_kill_);
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-//---------------------------------------------------------------------------//

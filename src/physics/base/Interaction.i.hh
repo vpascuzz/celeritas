@@ -3,35 +3,30 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Types.hh
+//! \file Interaction.i.hh
 //---------------------------------------------------------------------------//
-#pragma once
-
-#include <cstddef>
-#include "Array.hh"
-#include "OpaqueId.hh"
 
 namespace celeritas
 {
-struct Thread;
 //---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
-//---------------------------------------------------------------------------//
-
-enum class Interp
+/*!
+ * Construct with defaults.
+ */
+CELER_FUNCTION Interaction Interaction::from_failure()
 {
-    Linear,
-    Log
-};
+    Interaction result;
+    result.action = Action::failure;
+    return result;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Whether the interaction succeeded
+ */
+CELER_FUNCTION Interaction::operator bool() const
+{
+    return action_completed(this->action);
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
-
-//---------------------------------------------------------------------------//

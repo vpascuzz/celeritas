@@ -28,6 +28,7 @@ list(APPEND SOURCES
   comm/Utils.cc
   physics/base/ParticleParams.cc
   physics/base/ParticleStateStore.cc
+  physics/base/SecondaryAllocatorStore.cc
 )
 
 if(CELERITAS_USE_CUDA)

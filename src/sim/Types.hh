@@ -5,33 +5,19 @@
 //---------------------------------------------------------------------------//
 //! \file Types.hh
 //---------------------------------------------------------------------------//
-#pragma once
-
-#include <cstddef>
-#include "Array.hh"
-#include "OpaqueId.hh"
+#ifndef sim_Types_hh
+#define sim_Types_hh
 
 namespace celeritas
 {
-struct Thread;
-//---------------------------------------------------------------------------//
-using size_type    = std::size_t;
-using ssize_type   = int;
-using real_type    = double;
-using RealPointer3 = array<real_type*, 3>;
-using Real3        = array<real_type, 3>;
-
-using ThreadId = OpaqueId<Thread, unsigned int>;
-
+struct Event;
+struct Track;
 //---------------------------------------------------------------------------//
 
-enum class Interp
-{
-    Linear,
-    Log
-};
+using EventId = OpaqueId<Event>;
+using TrackId = OpaqueId<Track>;
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas
 
-//---------------------------------------------------------------------------//
+#endif // sim_Types_hh

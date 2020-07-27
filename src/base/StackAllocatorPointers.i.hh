@@ -18,7 +18,7 @@ namespace celeritas
  */
 CELER_FUNCTION bool StackAllocatorPointers::valid() const
 {
-    return storage.empty() == bool(size);
+    return !storage.empty() == bool(size);
 }
 
 //---------------------------------------------------------------------------//

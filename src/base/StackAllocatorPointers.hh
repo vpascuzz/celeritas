@@ -23,7 +23,7 @@ struct StackAllocatorPointers
     using size_type = unsigned long long int;
 
     span<byte> storage;
-    size_type* size;
+    size_type* size = nullptr;
 
     //! Check whether the view is assigned
     explicit inline CELER_FUNCTION operator bool() const
