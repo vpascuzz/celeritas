@@ -3,10 +3,10 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file ParticleTrackView.test.cu
+//! \file Particle.test.cu
 //---------------------------------------------------------------------------//
 #include "physics/base/ParticleTrackView.hh"
-#include "ParticleTrackView.test.hh"
+#include "Particle.test.hh"
 
 #include <thrust/device_vector.h>
 #include "base/KernelParamCalculator.cuda.hh"
@@ -19,7 +19,7 @@ namespace celeritas_test
 // KERNELS
 //---------------------------------------------------------------------------//
 
-__global__ void tpv_test_kernel(unsigned int              size,
+__global__ void ptv_test_kernel(unsigned int              size,
                                 ParticleParamsPointers    params,
                                 ParticleStatePointers     states,
                                 const ParticleTrackState* init,
@@ -34,7 +34,7 @@ __global__ void tpv_test_kernel(unsigned int              size,
     p = init[local_thread_id.get()];
 
     // Skip result to the start for this thread
-    result += local_thread_id.get() * TPVTestOutput::props_per_thread();
+    result += local_thread_id.get() * PTVTestOutput::props_per_thread();
 
     // Calculate/write values from the track view
     CHECK(p.particle_type() == init[local_thread_id.get()].particle_type);
@@ -52,22 +52,22 @@ __global__ void tpv_test_kernel(unsigned int              size,
 // TESTING INTERFACE
 //---------------------------------------------------------------------------//
 //! Run on device and return results
-TPVTestOutput tpv_test(TPVTestInput input)
+PTVTestOutput ptv_test(PTVTestInput input)
 {
     thrust::device_vector<ParticleTrackState> init = input.init;
     thrust::device_vector<double>             result(init.size()
-                                         * TPVTestOutput::props_per_thread());
+                                         * PTVTestOutput::props_per_thread());
 
     celeritas::KernelParamCalculator calc_launch_params;
     auto                             params = calc_launch_params(init.size());
-    tpv_test_kernel<<<params.grid_size, params.block_size>>>(
+    ptv_test_kernel<<<params.grid_size, params.block_size>>>(
         init.size(),
         input.params,
         input.states,
         raw_pointer_cast(init.data()),
         raw_pointer_cast(result.data()));
 
-    TPVTestOutput output;
+    PTVTestOutput output;
     output.props.resize(result.size());
     thrust::copy(result.begin(), result.end(), output.props.begin());
     return output;

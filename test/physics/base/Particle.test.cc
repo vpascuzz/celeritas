@@ -3,7 +3,7 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file ParticleTrackView.test.cc
+//! \file Particle.test.cc
 //---------------------------------------------------------------------------//
 #include "physics/base/ParticleTrackView.hh"
 
@@ -15,7 +15,7 @@
 #include "physics/base/ParticleStateStore.hh"
 #include "physics/base/ParticleStatePointers.hh"
 #include "physics/base/Units.hh"
-#include "ParticleTrackView.test.hh"
+#include "Particle.test.hh"
 
 using celeritas::ParticleDef;
 using celeritas::ParticleDefId;
@@ -35,7 +35,7 @@ using namespace celeritas_test;
 // TEST HARNESS BASE
 //---------------------------------------------------------------------------//
 
-class TrackParticleViewTest : public celeritas::Test
+class ParticleTrackViewTest : public celeritas::Test
 {
   protected:
     void SetUp() override
@@ -59,7 +59,7 @@ class TrackParticleViewTest : public celeritas::Test
     std::shared_ptr<ParticleParams> particle_params;
 };
 
-TEST_F(TrackParticleViewTest, params_accessors)
+TEST_F(ParticleTrackViewTest, params_accessors)
 {
     using celeritas::PDGNumber;
     const ParticleParams& defs = *this->particle_params;
@@ -77,9 +77,9 @@ TEST_F(TrackParticleViewTest, params_accessors)
 // HOST TESTS
 //---------------------------------------------------------------------------//
 
-class TrackParticleViewTestHost : public TrackParticleViewTest
+class ParticleTrackViewTestHost : public ParticleTrackViewTest
 {
-    using Base = TrackParticleViewTest;
+    using Base = ParticleTrackViewTest;
 
   protected:
     void SetUp() override
@@ -98,7 +98,7 @@ class TrackParticleViewTestHost : public TrackParticleViewTest
     ParticleStatePointers  state_view;
 };
 
-TEST_F(TrackParticleViewTestHost, electron)
+TEST_F(ParticleTrackViewTestHost, electron)
 {
     ParticleTrackView particle(params_view, state_view, ThreadId(0));
     particle = {ParticleDefId{0}, 500 * units::kilo_electron_volt};
@@ -113,7 +113,7 @@ TEST_F(TrackParticleViewTestHost, electron)
     EXPECT_SOFT_EQ(0.7609989461, particle.momentum_sq());
 }
 
-TEST_F(TrackParticleViewTestHost, gamma)
+TEST_F(ParticleTrackViewTestHost, gamma)
 {
     ParticleTrackView particle(params_view, state_view, ThreadId(0));
     particle = {ParticleDefId{1}, 10 * units::mega_electron_volt};
@@ -124,7 +124,7 @@ TEST_F(TrackParticleViewTestHost, gamma)
     EXPECT_DOUBLE_EQ(10, particle.momentum()); // [1 / c]
 }
 
-TEST_F(TrackParticleViewTestHost, neutron)
+TEST_F(ParticleTrackViewTestHost, neutron)
 {
     ParticleTrackView particle(params_view, state_view, ThreadId(0));
     particle = {ParticleDefId{2}, 20 * units::mega_electron_volt};
@@ -138,14 +138,14 @@ TEST_F(TrackParticleViewTestHost, neutron)
 // DEVICE TESTS
 //---------------------------------------------------------------------------//
 
-class TrackParticleViewTestDevice : public TrackParticleViewTest
+class ParticleTrackViewTestDevice : public ParticleTrackViewTest
 {
-    using Base = TrackParticleViewTest;
+    using Base = ParticleTrackViewTest;
 };
 
-TEST_F(TrackParticleViewTestDevice, calc_props)
+TEST_F(ParticleTrackViewTestDevice, calc_props)
 {
-    TPVTestInput input;
+    PTVTestInput input;
     input.init = {{ParticleDefId{0}, 500 * units::kilo_electron_volt},
                   {ParticleDefId{1}, 10 * units::mega_electron_volt},
                   {ParticleDefId{2}, 20 * units::mega_electron_volt}};
@@ -155,7 +155,7 @@ TEST_F(TrackParticleViewTestDevice, calc_props)
     input.states = pstates.device_pointers();
 
     // Run GPU test
-    auto result = tpv_test(input);
+    auto result = ptv_test(input);
 
     // Check results
     // PRINT_EXPECTED(result.props);

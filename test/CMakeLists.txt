@@ -79,7 +79,7 @@ celeritas_add_test(comm/Communicator.test.cc)
 
 celeritas_setup_tests(SERIAL PREFIX physics/base)
 
-add_cudaoptional_test(physics/base/ParticleTrackView)
+add_cudaoptional_test(physics/base/Particle)
 
 #-----------------------------------------------------------------------------#
 # Physics (EM)

@@ -18,7 +18,7 @@ using namespace celeritas;
 // TESTING INTERFACE
 //---------------------------------------------------------------------------//
 //! Input data
-struct TPVTestInput
+struct PTVTestInput
 {
     ParticleParamsPointers          params;
     ParticleStatePointers           states;
@@ -27,7 +27,7 @@ struct TPVTestInput
 
 //---------------------------------------------------------------------------//
 //! Output results
-struct TPVTestOutput
+struct PTVTestOutput
 {
     std::vector<double> props;
 
@@ -36,7 +36,7 @@ struct TPVTestOutput
 
 //---------------------------------------------------------------------------//
 //! Run on device and return results
-TPVTestOutput tpv_test(TPVTestInput);
+PTVTestOutput ptv_test(PTVTestInput);
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas_test
