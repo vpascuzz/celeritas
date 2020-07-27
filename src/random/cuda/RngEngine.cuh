@@ -9,7 +9,7 @@
 
 #include <curand_kernel.h>
 #include "RngStatePointers.cuh"
-#include "random/distributions/GenerateCanonical.h"
+#include "random/distributions/GenerateCanonical.hh"
 
 namespace celeritas
 {
