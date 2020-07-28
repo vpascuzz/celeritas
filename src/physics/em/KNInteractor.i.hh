@@ -66,7 +66,7 @@ CELER_FUNCTION Interaction KNInteractor::operator()(Engine& rng)
     // Rejection loop: sample epsilon (energy change) and direction change
     real_type epsilon;
     real_type one_minus_costheta;
-    // Temporary sample varlues used in rejection
+    // Temporary sample values used in rejection
     real_type rejection_prob;
     int       rejection_failure_countdown = this->max_rejection_loops();
     do
@@ -113,7 +113,7 @@ CELER_FUNCTION Interaction KNInteractor::operator()(Engine& rng)
     UniformRealDistribution<real_type> sample_phi(0, constants::two_pi);
     rotate_polar(1 - one_minus_costheta, sample_phi(rng), &result.direction);
 
-    // Construct seconary energy by neglecting electron binding energy
+    // Construct secondary energy by neglecting electron binding energy
     electron_secondary->energy = inc_energy_ - result.energy;
     // Direction = gamma direction * gamma inc - gamma exit dir * gamma exit
     for (int i = 0; i < 3; ++i)
