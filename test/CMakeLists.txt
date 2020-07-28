@@ -74,6 +74,8 @@ celeritas_setup_tests(SERIAL PREFIX physics/base)
 
 add_cudaoptional_test(physics/base/Particle)
 
+celeritas_add_test(physics/base/GeantImporter.test.cc)
+
 #-----------------------------------------------------------------------------#
 # Random
 
