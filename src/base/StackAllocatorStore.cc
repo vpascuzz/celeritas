@@ -36,7 +36,8 @@ StackAllocatorPointers StackAllocatorStore::device_pointers()
 {
     StackAllocatorPointers view;
     view.storage = span<byte>{allocation_.device_pointers().data(), capacity_};
-    view.size = reinterpret_cast<size_type*>(view.storage.data() + capacity_);
+    view.reqsize
+        = reinterpret_cast<size_type*>(view.storage.data() + capacity_);
     return view;
 }
 

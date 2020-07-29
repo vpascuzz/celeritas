@@ -100,9 +100,9 @@ void InteractorHostTestBase::reallocate_secondaries(size_type capacity)
     REQUIRE(capacity > 0);
     this->clear_secondaries();
     secondary_storage_.resize(capacity * sizeof(Secondary));
-    secondary_size_             = 0;
-    secondary_pointers_.storage = make_span(secondary_storage_);
-    secondary_pointers_.size    = &secondary_size_;
+    secondary_reqbytes_                   = 0;
+    secondary_pointers_.allocator.storage = make_span(secondary_storage_);
+    secondary_pointers_.allocator.reqsize = &secondary_reqbytes_;
 
     ENSURE(secondary_pointers_);
 }
@@ -113,7 +113,7 @@ void InteractorHostTestBase::reallocate_secondaries(size_type capacity)
  */
 void InteractorHostTestBase::clear_secondaries()
 {
-    secondary_size_ = 0;
+    secondary_reqbytes_ = 0;
 }
 
 //---------------------------------------------------------------------------//
@@ -123,9 +123,7 @@ void InteractorHostTestBase::clear_secondaries()
 SecondaryAllocatorView InteractorHostTestBase::secondary_allocator()
 {
     REQUIRE(secondary_pointers_);
-    SecondaryAllocatorPointers ptrs;
-    ptrs.allocator = secondary_pointers_;
-    return SecondaryAllocatorView(ptrs);
+    return SecondaryAllocatorView(secondary_pointers_);
 }
 
 //---------------------------------------------------------------------------//
@@ -136,7 +134,7 @@ auto InteractorHostTestBase::secondaries() const -> constSpanSecondaries
 {
     // XXX need c++17 "launder" for this to not be UB
     return {reinterpret_cast<const Secondary*>(secondary_storage_.data()),
-            secondary_size_ / sizeof(Secondary)};
+            secondary_reqbytes_ / sizeof(Secondary)};
 }
 
 //---------------------------------------------------------------------------//

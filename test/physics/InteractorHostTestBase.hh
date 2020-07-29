@@ -13,10 +13,10 @@
 #include "gtest/Test.hh"
 #include "base/Array.hh"
 #include "base/Span.hh"
-#include "base/StackAllocatorPointers.hh"
 #include "base/Types.hh"
 #include "physics/base/ParticleParams.hh"
 #include "physics/base/ParticleStatePointers.hh"
+#include "physics/base/SecondaryAllocatorPointers.hh"
 
 namespace celeritas
 {
@@ -85,8 +85,8 @@ class InteractorHostTestBase : public celeritas::Test
     Real3                           inc_direction_ = {0, 0, 1};
 
     std::vector<celeritas::byte>      secondary_storage_;
-    StackAllocatorPointers::size_type secondary_size_;
-    StackAllocatorPointers            secondary_pointers_;
+    StackAllocatorPointers::size_type secondary_reqbytes_;
+    SecondaryAllocatorPointers        secondary_pointers_;
 
     RandomEngine rng_;
 };

@@ -24,7 +24,7 @@ struct Secondary
     TrackId       parent_track_id; //!< Originating track ID
     ParticleDefId def_id;          //!< New particle type
     Real3         direction;       //!< New direction
-    real_type     energy;          //!< New energy
+    real_type     energy;          //!< New kinetic energy
 
     // Secondary failed to sample
     static inline CELER_FUNCTION Secondary from_failure();

@@ -22,11 +22,11 @@ struct StackAllocatorPointers
     //! Size type needed for CUDA atomics compatibility
     using size_type = unsigned long long int;
 
-    span<byte> storage;
-    size_type* size = nullptr;
+    span<byte> storage;           // View to storage
+    size_type* reqsize = nullptr; // Total requested size (can be > capacity)
 
     //! Check whether the view is assigned
-    explicit inline CELER_FUNCTION operator bool() const
+    explicit CELER_FUNCTION operator bool() const
     {
         REQUIRE(this->valid());
         return !storage.empty();

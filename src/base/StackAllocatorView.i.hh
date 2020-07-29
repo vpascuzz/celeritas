@@ -23,11 +23,14 @@ StackAllocatorView::StackAllocatorView(const StackAllocatorPointers& view)
 //---------------------------------------------------------------------------//
 /*!
  * Allocate like malloc.
+ *
+ * Be aware that this increments the requested size *no matter what*: if the
+ * buffer is full, reqsize >= capacity.
  */
 CELER_FUNCTION auto StackAllocatorView::operator()(size_type size)
     -> result_type
 {
-    size_type start = atomic_add(shared_.size, size);
+    size_type start = atomic_add(shared_.reqsize, size);
     if (start + size > shared_.storage.size())
         return nullptr;
     return shared_.storage.data() + start;

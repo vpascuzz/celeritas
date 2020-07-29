@@ -18,6 +18,9 @@ namespace celeritas
 struct SecondaryAllocatorPointers
 {
     StackAllocatorPointers allocator;
+
+    //! Check whether the pointers have been assigned
+    explicit CELER_FUNCTION operator bool() const { return bool(allocator); }
 };
 
 //---------------------------------------------------------------------------//

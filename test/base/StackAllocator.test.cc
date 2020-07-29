@@ -34,7 +34,7 @@ class StackAllocatorTest : public celeritas::Test
 // TESTS
 //---------------------------------------------------------------------------//
 
-TEST_F(StackAllocatorTest, all)
+TEST_F(StackAllocatorTest, device)
 {
     EXPECT_EQ(1024 * 8, storage.capacity());
 
