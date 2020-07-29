@@ -26,7 +26,6 @@ CELER_FUNCTION bool action_completed(Action a)
  */
 CELER_FUNCTION bool action_kills(Action a)
 {
-    using enum_int = int;
     return int(a) >= int(Action::begin_kill_)
            && int(a) < int(Action::end_kill_);
 }

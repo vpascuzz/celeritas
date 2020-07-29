@@ -8,7 +8,7 @@
 
 #include "base/ArrayUtils.hh"
 #include "base/Constants.hh"
-#include "random/distributions/BinaryDistribution.hh"
+#include "random/distributions/BernoulliDistribution.hh"
 #include "random/distributions/GenerateCanonical.hh"
 #include "random/distributions/UniformRealDistribution.hh"
 
@@ -25,10 +25,10 @@ KNInteractor::KNInteractor(const KNInteractorPointers& shared,
                            const ParticleTrackView&    particle,
                            const Real3&                inc_direction,
                            SecondaryAllocatorView&     allocate)
-    : inc_direction_(inc_direction)
-    , allocate_(allocate)
+    : inv_electron_mass_csq_(shared.inv_electron_mass_csq)
     , inc_energy_(particle.kinetic_energy())
-    , inv_electron_mass_csq_(shared.inv_electron_mass_csq)
+    , inc_direction_(inc_direction)
+    , allocate_(allocate)
 {
     REQUIRE(inc_energy_ >= this->min_incident_energy());
 }
@@ -58,8 +58,8 @@ CELER_FUNCTION Interaction KNInteractor::operator()(Engine& rng)
     const real_type log_epsilon_0 = std::log(epsilon_0);
 
     // Probability of alpha_1 to choose f1 (sample epsilon)
-    BinaryDistribution choose_f1(-log_epsilon_0,
-                                 0.5 * (1 - epsilon_0 * epsilon_0));
+    BernoulliDistribution choose_f1(-log_epsilon_0,
+                                    0.5 * (1 - epsilon_0 * epsilon_0));
     // Sample square of f_2(\eps) \propto \eps on [\eps_0, 1]
     UniformRealDistribution<real_type> sample_f2_sq(epsilon_0 * epsilon_0, 1);
 
@@ -100,7 +100,7 @@ CELER_FUNCTION Interaction KNInteractor::operator()(Engine& rng)
         // Calculate angles: need sin^2 \theta for rejection
         one_minus_costheta = (1 - epsilon) / (epsilon * inc_energy_per_mecsq);
         real_type sintheta_sq = one_minus_costheta * (2 - one_minus_costheta);
-        real_type rejection_prob = 1 - epsilon * sintheta_sq / (1 + epsilon_sq);
+        rejection_prob        = 1 - epsilon * sintheta_sq / (1 + epsilon_sq);
     } while (rejection_prob < generate_canonical(rng));
 
     // Construct interaction for change to primary (incident) particle

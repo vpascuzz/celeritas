@@ -21,9 +21,9 @@
 namespace celeritas
 {
 class SecondaryAllocatorView;
-class Secondary;
 class ParticleParams;
 class ParticleTrackView;
+struct Secondary;
 } // namespace celeritas
 
 namespace celeritas_test
