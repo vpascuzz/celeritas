@@ -64,6 +64,12 @@ TEST_F(SecondaryAllocatorHostTest, allocation)
     // Ask for one more than we have room
     ptr = alloc(9);
     EXPECT_EQ(nullptr, ptr);
+
+    // Get span to the data
+    auto all_secondaries = alloc.secondaries();
+    EXPECT_EQ(8, all_secondaries.size());
+    EXPECT_EQ(static_cast<void*>(storage_.data()),
+              static_cast<void*>(all_secondaries.data()));
 }
 
 //---------------------------------------------------------------------------//
@@ -135,6 +141,9 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
     EXPECT_EQ(0, result.num_errors);
     EXPECT_EQ(1024 - accum_expected_alloc, result.num_allocations);
     EXPECT_EQ(1024, actual_allocations(input, result));
+
+    // Reset secondary storage
+    storage.clear();
 }
 
 #endif

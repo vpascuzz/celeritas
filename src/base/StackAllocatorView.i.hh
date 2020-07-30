@@ -6,6 +6,7 @@
 //! \file StackAllocatorView.i.hh
 //---------------------------------------------------------------------------//
 
+#include "base/Algorithms.hh"
 #include "base/Atomics.hh"
 
 namespace celeritas
@@ -34,6 +35,15 @@ CELER_FUNCTION auto StackAllocatorView::operator()(size_type size)
     if (start + size > shared_.storage.size())
         return nullptr;
     return shared_.storage.data() + start;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Get the current allocated size in bytes.
+ */
+CELER_FUNCTION auto StackAllocatorView::size() const -> size_type
+{
+    return celeritas::min<size_type>(shared_.storage.size(), *shared_.reqsize);
 }
 
 //---------------------------------------------------------------------------//

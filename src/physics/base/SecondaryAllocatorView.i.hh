@@ -37,4 +37,15 @@ CELER_FUNCTION auto SecondaryAllocatorView::operator()(size_type count)
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * View all allocated secondaries (NOT THREAD SAFE).
+ */
+CELER_FUNCTION auto SecondaryAllocatorView::secondaries() -> SpanSecondary
+{
+    // Transform size and data from bytes to secondary
+    auto size = this->allocate_.size() / sizeof(Secondary);
+    return {reinterpret_cast<Secondary*>(this->allocate_.data()), size};
+}
+
+//---------------------------------------------------------------------------//
 } // namespace celeritas

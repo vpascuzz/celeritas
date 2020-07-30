@@ -7,6 +7,7 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
+#include "base/Span.hh"
 #include "base/StackAllocatorView.hh"
 #include "Secondary.hh"
 #include "SecondaryAllocatorPointers.hh"
@@ -22,7 +23,9 @@ class SecondaryAllocatorView
   public:
     //@{
     //! Type aliases
-    using result_type = Secondary*;
+    using result_type        = Secondary*;
+    using constSpanSecondary = span<const Secondary>;
+    using SpanSecondary      = span<Secondary>;
     //@}
 
   public:
@@ -32,6 +35,12 @@ class SecondaryAllocatorView
 
     // Allocate space for this many secondaries
     inline CELER_FUNCTION result_type operator()(size_type count);
+
+    // View all allocated secondaries (NOT THREAD SAFE)
+    inline CELER_FUNCTION SpanSecondary secondaries();
+
+    // View all allocated secondaries (NOT THREAD SAFE)
+    inline CELER_FUNCTION constSpanSecondary secondaries() const;
 
   private:
     StackAllocatorView allocate_;

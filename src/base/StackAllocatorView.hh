@@ -43,6 +43,15 @@ class StackAllocatorView
     // Allocate like malloc
     inline CELER_FUNCTION result_type operator()(size_type size);
 
+    //! Get a pointer to the stored data
+    CELER_FUNCTION byte* data() { return shared_.storage.data(); }
+
+    //! Get a pointer to the stored data
+    CELER_FUNCTION const byte* data() const { return shared_.storage.data(); }
+
+    // Get the current (NON THREAD SAFE) storage size in bytes
+    inline CELER_FUNCTION size_type size() const;
+
   private:
     const StackAllocatorPointers& shared_;
 };
