@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------//
 //! \file SecondaryAllocator.test.hh
 //---------------------------------------------------------------------------//
+#include "physics/base/SecondaryAllocatorPointers.hh"
 
 namespace celeritas_test
 {

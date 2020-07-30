@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <thrust/device_vector.h>
 #include "base/KernelParamCalculator.cuda.hh"
-#include "base/SecondaryAllocatorView.cuda.hh"
+#include "physics/base/SecondaryAllocatorView.hh"
 
 using thrust::raw_pointer_cast;
 
@@ -49,14 +49,14 @@ __global__ void sa_test_kernel(SATestInput input, SATestOutput* output)
             }
 
             // Initialize the secondary
-            secondaries[j].parent_track_id = {thread_idx};
-            secondaries[j].def_id          = {thread_idx % 4};
+            secondaries[j].parent_track_id = TrackId{thread_idx};
+            secondaries[j].def_id          = ParticleDefId{thread_idx % 4};
             for (int ax = 0; ax < 3; ++ax)
             {
                 secondaries[j].direction[ax] = 0;
             }
             secondaries[j].direction[thread_idx % 3] = 1;
-            secondaries[j].energy = 1 + 10 * real_type{thread_idx};
+            secondaries[j].energy = 1 + 10 * real_type(thread_idx);
         }
         static_assert(sizeof(void*) == sizeof(SATestOutput::ull_int),
                       "Wrong pointer size");
@@ -77,7 +77,7 @@ SATestOutput sa_test(SATestInput input)
     celeritas::KernelParamCalculator calc_launch_params;
     auto params = calc_launch_params(input.num_threads);
     sa_test_kernel<<<params.grid_size, params.block_size>>>(
-        input, device_ptr_cast(out.data()));
+        input, raw_pointer_cast(out.data()));
     CELER_CUDA_CHECK_ERROR();
 
     // Copy data back to host

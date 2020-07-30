@@ -6,14 +6,15 @@
 //! \file SecondaryAllocator.test.cc
 //---------------------------------------------------------------------------//
 #include "physics/base/SecondaryAllocatorView.hh"
-#include "physics/base/SecondaryAllocatorPointers.hh"
 #include "physics/base/SecondaryAllocatorStore.hh"
 
+#include <cstdint>
 #include "gtest/Main.hh"
 #include "gtest/Test.hh"
 #include "SecondaryAllocator.test.hh"
 
-using namespace celeritas;
+// using namespace celeritas;
+using namespace celeritas_test;
 
 //---------------------------------------------------------------------------//
 // HOST TESTS
@@ -68,6 +69,72 @@ TEST_F(SecondaryAllocatorHostTest, allocation)
 //---------------------------------------------------------------------------//
 // DEVICE TESTS
 //---------------------------------------------------------------------------//
+#if CELERITAS_USE_CUDA
 
-class SecondaryAllocatorHostTest : public celeritas::Test
+class SecondaryAllocatorDeviceTest : public celeritas::Test
 {
+  protected:
+    void SetUp() override
+    {
+        // Allocate 1024 secondaries
+        storage = SecondaryAllocatorStore(1024);
+    }
+
+    // Get the actual number of allocated secondaries
+    int actual_allocations(const SATestInput& in, const SATestOutput& out) const
+    {
+        using std::uintptr_t;
+
+        // Use GPU pointer arithmetic to find the start address of the final
+        // secondary allocation; divide by sizeof secondary, add the final
+        // allocation
+        void* storage_begin_ptr
+            = static_cast<void*>(in.sa_view.allocator.storage.data());
+        auto prev_alloc = (static_cast<uintptr_t>(out.last_secondary_address)
+                           - reinterpret_cast<uintptr_t>(storage_begin_ptr))
+                          / sizeof(Secondary);
+        return prev_alloc + in.alloc_size;
+    }
+
+    SecondaryAllocatorStore storage;
+};
+
+TEST_F(SecondaryAllocatorDeviceTest, run)
+{
+    EXPECT_EQ(1024, storage.capacity());
+    int accum_expected_alloc = 0;
+
+    // Allocate a subset of the stack
+    SATestInput input;
+    input.sa_view     = storage.device_pointers();
+    input.num_threads = 64;
+    input.num_iters   = 1;
+    input.alloc_size  = 2;
+    auto result       = sa_test(input);
+    EXPECT_EQ(0, result.num_errors);
+    EXPECT_EQ(input.num_threads * input.num_iters * input.alloc_size,
+              result.num_allocations);
+    accum_expected_alloc += result.num_allocations;
+    EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
+
+    // Run again, two iterations per thread
+    input.num_iters  = 2;
+    input.alloc_size = 4;
+    result           = sa_test(input);
+    EXPECT_EQ(0, result.num_errors);
+    EXPECT_EQ(input.num_threads * input.num_iters * input.alloc_size,
+              result.num_allocations);
+    accum_expected_alloc += result.num_allocations;
+    EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
+
+    // Run again, too many iterations (so storage gets filled up)
+    input.num_iters   = 128;
+    input.num_threads = 1024;
+    input.alloc_size  = 1;
+    result            = sa_test(input);
+    EXPECT_EQ(0, result.num_errors);
+    EXPECT_EQ(1024 - accum_expected_alloc, result.num_allocations);
+    EXPECT_EQ(1024, actual_allocations(input, result));
+}
+
+#endif
