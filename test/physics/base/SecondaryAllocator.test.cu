@@ -7,8 +7,10 @@
 //---------------------------------------------------------------------------//
 #include "SecondaryAllocator.test.hh"
 
+#include <cstdint>
 #include <thrust/device_vector.h>
 #include "base/KernelParamCalculator.cuda.hh"
+#include "base/SecondaryAllocatorView.cuda.hh"
 
 using thrust::raw_pointer_cast;
 
@@ -18,23 +20,48 @@ namespace celeritas_test
 // KERNELS
 //---------------------------------------------------------------------------//
 
-__global__ void sa_test_kernel(SATestInput input)
+__global__ void sa_test_kernel(SATestInput input, SATestOutput* output)
 {
-    unsigned int local_thread_id
-        = celeritas::KernelParamCalculator::thread_id().get();
-    if (local_thread_id >= input.num_threads)
+    auto thread_idx = celeritas::KernelParamCalculator::thread_id().get();
+    if (thread_idx >= input.num_threads)
         return;
 
-    num_allocations[local_thread_id] = 0;
-
-    StackAllocator allocate(input.sa_view);
+    SecondaryAllocatorView allocate(input.sa_view);
     for (int i = 0; i < input.num_iters; ++i)
     {
-        void* new_data = allocate(input.alloc_size);
-        if (new_data)
+        Secondary* secondaries = allocate(input.alloc_size);
+        if (!secondaries)
         {
-            ++num_allocations[local_thread_id];
+            continue;
         }
+
+        atomicAdd(&output->num_allocations, input.alloc_size);
+        // Check that all secondaries are initialized correctly
+        for (int j = 0; j < input.alloc_size; ++j)
+        {
+            if (secondaries[j].parent_track_id)
+            {
+                atomicAdd(&output->num_errors, 1);
+            }
+            if (secondaries[j].def_id)
+            {
+                atomicAdd(&output->num_errors, 1);
+            }
+
+            // Initialize the secondary
+            secondaries[j].parent_track_id = {thread_idx};
+            secondaries[j].def_id          = {thread_idx % 4};
+            for (int ax = 0; ax < 3; ++ax)
+            {
+                secondaries[j].direction[ax] = 0;
+            }
+            secondaries[j].direction[thread_idx % 3] = 1;
+            secondaries[j].energy = 1 + 10 * real_type{thread_idx};
+        }
+        static_assert(sizeof(void*) == sizeof(SATestOutput::ull_int),
+                      "Wrong pointer size");
+        atomicMax(&output->last_secondary_address,
+                  reinterpret_cast<SATestOutput::ull_int>(secondaries));
     }
 }
 
@@ -44,12 +71,18 @@ __global__ void sa_test_kernel(SATestInput input)
 //! Run on device and return results
 SATestOutput sa_test(SATestInput input)
 {
+    // Construct and initialize output data
+    thrust::device_vector<SATestOutput> out(1);
+
     celeritas::KernelParamCalculator calc_launch_params;
     auto params = calc_launch_params(input.num_threads);
-    sa_test_kernel<<<params.grid_size, params.block_size>>>(input.num_threads);
+    sa_test_kernel<<<params.grid_size, params.block_size>>>(
+        input, device_ptr_cast(out.data()));
+    CELER_CUDA_CHECK_ERROR();
 
-    SATestOutput result;
-    return result;
+    // Copy data back to host
+    thrust::host_vector<SATestOutput> host_result = out;
+    return host_result.front();
 }
 
 //---------------------------------------------------------------------------//

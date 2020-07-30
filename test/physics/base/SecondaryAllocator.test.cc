@@ -64,3 +64,10 @@ TEST_F(SecondaryAllocatorHostTest, allocation)
     ptr = alloc(9);
     EXPECT_EQ(nullptr, ptr);
 }
+
+//---------------------------------------------------------------------------//
+// DEVICE TESTS
+//---------------------------------------------------------------------------//
+
+class SecondaryAllocatorHostTest : public celeritas::Test
+{

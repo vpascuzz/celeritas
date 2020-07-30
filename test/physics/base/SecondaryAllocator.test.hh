@@ -25,9 +25,11 @@ struct SATestInput
 //! Output results
 struct SATestOutput
 {
-    std::vector<int>    parent_track;
-    std::vector<int>    def_id;
-    std::vector<double> energy;
+    using ull_int = unsigned long long int;
+
+    int     num_errors             = 0;
+    int     num_allocations        = 0;
+    ull_int last_secondary_address = 0;
 };
 
 //---------------------------------------------------------------------------//
