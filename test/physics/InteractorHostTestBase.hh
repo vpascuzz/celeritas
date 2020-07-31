@@ -17,6 +17,7 @@
 #include "physics/base/ParticleParams.hh"
 #include "physics/base/ParticleStatePointers.hh"
 #include "physics/base/SecondaryAllocatorPointers.hh"
+#include "HostDebugSecondaryStorage.hh"
 
 namespace celeritas
 {
@@ -68,10 +69,10 @@ class InteractorHostTestBase : public celeritas::Test
 
     //@{
     //! Secondary stack storage and access
-    void                   reallocate_secondaries(size_type capacity);
-    void                   clear_secondaries();
-    SecondaryAllocatorView secondary_allocator();
-    constSpanSecondaries   secondaries() const;
+    const HostDebugSecondaryStorage& secondaries() const
+    {
+        return secondaries_;
+    }
     //@}
 
     //@{
@@ -83,10 +84,7 @@ class InteractorHostTestBase : public celeritas::Test
     std::shared_ptr<ParticleParams> particle_params_;
     ParticleTrackState              particle_state_;
     Real3                           inc_direction_ = {0, 0, 1};
-
-    std::vector<celeritas::byte>      secondary_storage_;
-    StackAllocatorPointers::size_type secondary_reqbytes_;
-    SecondaryAllocatorPointers        secondary_pointers_;
+    HostDebugSecondaryStorage       secondaries_;
 
     RandomEngine rng_;
 };

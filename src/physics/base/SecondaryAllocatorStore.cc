@@ -8,6 +8,7 @@
 #include "SecondaryAllocatorStore.hh"
 
 #include "base/Assert.hh"
+#include "base/Memory.hh"
 #include "Secondary.hh"
 
 namespace celeritas
@@ -17,8 +18,11 @@ namespace celeritas
  * Construct with the number of bytes to allocate on device.
  */
 SecondaryAllocatorStore::SecondaryAllocatorStore(size_type capacity)
-    : capacity_(capacity), allocator_store_(capacity * sizeof(Secondary))
+    : allocation_(capacity), size_allocation_(1)
 {
+    REQUIRE(capacity > 0);
+    this->clear();
+    ENSURE(this->get_size() == 0);
 }
 
 //---------------------------------------------------------------------------//
@@ -28,28 +32,36 @@ SecondaryAllocatorStore::SecondaryAllocatorStore(size_type capacity)
 SecondaryAllocatorPointers SecondaryAllocatorStore::device_pointers()
 {
     SecondaryAllocatorPointers view;
-    view.allocator = allocator_store_.device_pointers();
+    view.storage = allocation_.device_pointers();
+    view.size    = size_allocation_.device_pointers().data();
     return view;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * Clear allocated data.
+ *
+ * This executes a kernel launch which simply resets the allocated size to
+ * zero. It does not change the allocation itself.
  */
 void SecondaryAllocatorStore::clear()
 {
-    allocator_store_.clear();
+    device_memset_zero(size_allocation_.device_pointers());
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * Swap with another stack allocator.
+ * Use a host->device copy to obtain the currently used size.
+ *
+ * This will have low latency because it's a host-device copy, and it should
+ * \em definitely not be used if a kernel is potentially changing the size of
+ * the stored secondaries.
  */
-void SecondaryAllocatorStore::swap(SecondaryAllocatorStore& other)
+auto SecondaryAllocatorStore::get_size() -> size_type
 {
-    using std::swap;
-    swap(capacity_, other.capacity_);
-    swap(allocator_store_, other.allocator_store_);
+    size_type result;
+    size_allocation_.copy_to_host({&result, 1});
+    return result;
 }
 
 //---------------------------------------------------------------------------//

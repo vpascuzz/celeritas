@@ -19,7 +19,7 @@ namespace celeritas_test
  */
 InteractorHostTestBase::InteractorHostTestBase()
 {
-    this->reallocate_secondaries(128);
+    secondaries_.resize(128);
 }
 
 //---------------------------------------------------------------------------//
@@ -89,52 +89,6 @@ ParticleTrackView InteractorHostTestBase::particle_track()
 
     return ParticleTrackView(
         particle_params_->host_pointers(), state, ThreadId{0});
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Clear and reserve a new amount of secondary tracks.
- */
-void InteractorHostTestBase::reallocate_secondaries(size_type capacity)
-{
-    REQUIRE(capacity > 0);
-    this->clear_secondaries();
-    secondary_storage_.resize(capacity * sizeof(Secondary));
-    secondary_reqbytes_                   = 0;
-    secondary_pointers_.allocator.storage = make_span(secondary_storage_);
-    secondary_pointers_.allocator.reqsize = &secondary_reqbytes_;
-
-    ENSURE(secondary_pointers_);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Reset the number of stored secondaries.
- */
-void InteractorHostTestBase::clear_secondaries()
-{
-    secondary_reqbytes_ = 0;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Return a view to (host-owned) secondary allocator.
- */
-SecondaryAllocatorView InteractorHostTestBase::secondary_allocator()
-{
-    REQUIRE(secondary_pointers_);
-    return SecondaryAllocatorView(secondary_pointers_);
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Access secondaries that have been created.
- */
-auto InteractorHostTestBase::secondaries() const -> constSpanSecondaries
-{
-    // XXX need c++17 "launder" for this to not be UB
-    return {reinterpret_cast<const Secondary*>(secondary_storage_.data()),
-            secondary_reqbytes_ / sizeof(Secondary)};
 }
 
 //---------------------------------------------------------------------------//

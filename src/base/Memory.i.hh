@@ -3,29 +3,20 @@
 // See the top-level COPYRIGHT file for details.
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 //---------------------------------------------------------------------------//
-//! \file Interaction.i.hh
+//! \file Memory.i.hh
 //---------------------------------------------------------------------------//
 
 namespace celeritas
 {
 //---------------------------------------------------------------------------//
 /*!
- * Construct with defaults.
+ * Call memset on device data.
  */
-CELER_FUNCTION Interaction Interaction::from_failure()
+template<class T>
+void device_memset_zero(span<T> device_pointers)
 {
-    Interaction result;
-    result.action = Action::failure;
-    return result;
-}
-
-//---------------------------------------------------------------------------//
-/*!
- * Whether the interaction succeeded
- */
-CELER_FUNCTION Interaction::operator bool() const
-{
-    return action_completed(this->action);
+    device_memset(
+        device_pointers.data(), 0, device_pointers.size() * sizeof(T));
 }
 
 //---------------------------------------------------------------------------//

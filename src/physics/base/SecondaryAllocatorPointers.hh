@@ -7,7 +7,9 @@
 //---------------------------------------------------------------------------//
 #pragma once
 
-#include "base/StackAllocatorPointers.hh"
+#include "base/Macros.hh"
+#include "base/Span.hh"
+#include "Secondary.hh"
 
 namespace celeritas
 {
@@ -17,11 +19,27 @@ namespace celeritas
  */
 struct SecondaryAllocatorPointers
 {
-    StackAllocatorPointers allocator;
+    //! Size type needed for CUDA atomics compatibility
+    using size_type = unsigned long long int;
 
-    //! Check whether the pointers have been assigned
-    explicit CELER_FUNCTION operator bool() const { return bool(allocator); }
+    span<Secondary> storage;        // View to storage space for secondaries
+    size_type*      size = nullptr; // Total number of secondaries stored
+
+    // Whether the pointers are assigned
+    explicit inline CELER_FUNCTION operator bool() const;
 };
+
+//---------------------------------------------------------------------------//
+// INLINE FUNCTIONS
+//---------------------------------------------------------------------------//
+/*!
+ * Check whether the pointers are assigned.
+ */
+CELER_FUNCTION SecondaryAllocatorPointers::operator bool() const
+{
+    REQUIRE(storage.empty() || size);
+    return !storage.empty();
+}
 
 //---------------------------------------------------------------------------//
 } // namespace celeritas

@@ -34,4 +34,26 @@ struct Interaction
 };
 
 //---------------------------------------------------------------------------//
+// INLINE FUNCTIONS
+//---------------------------------------------------------------------------//
+/*!
+ * Construct with defaults.
+ */
+CELER_FUNCTION Interaction Interaction::from_failure()
+{
+    Interaction result;
+    result.action = Action::failure;
+    return result;
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * Whether the interaction succeeded
+ */
+CELER_FUNCTION Interaction::operator bool() const
+{
+    return action_completed(this->action);
+}
+
+//---------------------------------------------------------------------------//
 } // namespace celeritas

@@ -63,8 +63,6 @@ celeritas_add_test(base/Span.test.cc)
 if(CELERITAS_USE_CUDA)
   celeritas_add_test(base/NumericLimits.test.cc
     SOURCES base/NumericLimits.test.cu)
-  celeritas_add_test(base/StackAllocator.test.cc
-    SOURCES base/StackAllocator.test.cu)
 endif()
 
 #-----------------------------------------------------------------------------#

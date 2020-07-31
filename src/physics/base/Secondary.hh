@@ -16,8 +16,9 @@ namespace celeritas
 {
 //---------------------------------------------------------------------------//
 /*!
- * New particle created via an Interaction. It will be converted into a track
- * using the original track information.
+ * New particle created via an Interaction.
+ *
+ * It will be converted into a track using the original track information.
  */
 struct Secondary
 {
@@ -34,6 +35,26 @@ struct Secondary
 };
 
 //---------------------------------------------------------------------------//
-} // namespace celeritas
+// INLINE FUNCTIONS
+//---------------------------------------------------------------------------//
+/*!
+ * Construct with defaults.
+ */
+CELER_FUNCTION Secondary Secondary::from_failure()
+{
+    Secondary result;
+    result.parent_track_id = {};
+    return result;
+}
 
-#include "Secondary.i.hh"
+//---------------------------------------------------------------------------//
+/*!
+ * Whether the Secondary succeeded
+ */
+CELER_FUNCTION Secondary::operator bool() const
+{
+    return static_cast<bool>(this->parent_track_id);
+}
+
+//---------------------------------------------------------------------------//
+} // namespace celeritas
