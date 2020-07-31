@@ -29,7 +29,7 @@ namespace celeritas
 struct ParticleTrackState
 {
     ParticleDefId particle_type;  //!< Type of particle (electron, gamma, ...)
-    real_type     kinetic_energy; //!< Kinetic energy [MeV]
+    real_type     energy;         //!< Kinetic energy [MeV]
 };
 
 //---------------------------------------------------------------------------//

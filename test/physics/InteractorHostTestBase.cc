@@ -60,7 +60,7 @@ void InteractorHostTestBase::set_inc_particle(PDGNumber pdg, real_type energy)
     REQUIRE(energy > 0);
 
     particle_state_.particle_type  = particle_params_->find(pdg);
-    particle_state_.kinetic_energy = energy;
+    particle_state_.energy         = energy;
 }
 
 //---------------------------------------------------------------------------//

@@ -34,7 +34,7 @@ CELER_FUNCTION ParticleTrackView&
 ParticleTrackView::operator=(const Initializer_t& other)
 {
     REQUIRE(other.particle_type < params_.defs.size());
-    REQUIRE(other.kinetic_energy > 0);
+    REQUIRE(other.energy > 0);
     state_ = other;
     return *this;
 }
@@ -54,9 +54,9 @@ CELER_FUNCTION ParticleDefId ParticleTrackView::particle_type() const
 /*!
  * Kinetic energy [MeV].
  */
-CELER_FUNCTION real_type ParticleTrackView::kinetic_energy() const
+CELER_FUNCTION real_type ParticleTrackView::energy() const
 {
-    return state_.kinetic_energy;
+    return state_.energy;
 }
 
 //---------------------------------------------------------------------------//
@@ -114,7 +114,7 @@ CELER_FUNCTION real_type ParticleTrackView::speed() const
     // Rest mass energy
     real_type mcsq = this->mass() * units::speed_of_light_sq;
     // Inverse of lorentz factor (safe for m=0)
-    real_type inv_gamma = mcsq / (this->kinetic_energy() + mcsq);
+    real_type inv_gamma = mcsq / (this->energy() + mcsq);
 
     return units::speed_of_light * std::sqrt(1 - inv_gamma * inv_gamma);
 }
@@ -130,7 +130,7 @@ CELER_FUNCTION real_type ParticleTrackView::lorentz_factor() const
 {
     REQUIRE(this->mass() > 0);
 
-    real_type k_over_mc2 = this->kinetic_energy()
+    real_type k_over_mc2 = this->energy()
                            / (this->mass() * units::speed_of_light_sq);
     return 1 + k_over_mc2;
 }
@@ -160,9 +160,8 @@ CELER_FUNCTION real_type ParticleTrackView::momentum_sq() const
 {
     constexpr real_type inv_c_sq = 1 / units::speed_of_light_sq;
 
-    const real_type kinetic_energy = this->kinetic_energy();
-    real_type       result         = kinetic_energy * kinetic_energy * inv_c_sq
-                       + 2 * this->mass() * kinetic_energy;
+    const real_type energy = this->energy();
+    real_type result = energy * energy * inv_c_sq + 2 * this->mass() * energy;
     ENSURE(result > 0);
     return result;
 }

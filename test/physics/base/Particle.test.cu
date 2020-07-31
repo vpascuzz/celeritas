@@ -38,7 +38,7 @@ __global__ void ptv_test_kernel(unsigned int              size,
 
     // Calculate/write values from the track view
     CHECK(p.particle_type() == init[local_thread_id.get()].particle_type);
-    *result++ = p.kinetic_energy();
+    *result++ = p.energy();
     *result++ = p.mass();
     *result++ = p.charge();
     *result++ = p.decay_constant();

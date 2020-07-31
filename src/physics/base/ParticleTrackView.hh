@@ -45,7 +45,7 @@ class ParticleTrackView
     inline CELER_FUNCTION ParticleDefId particle_type() const;
 
     // Kinetic energy [MeV]
-    inline CELER_FUNCTION real_type kinetic_energy() const;
+    inline CELER_FUNCTION real_type energy() const;
 
     // >>> STATIC PROPERTIES
 

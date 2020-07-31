@@ -103,7 +103,7 @@ TEST_F(ParticleTrackViewTestHost, electron)
     ParticleTrackView particle(params_view, state_view, ThreadId(0));
     particle = {ParticleDefId{0}, 500 * units::kilo_electron_volt};
 
-    EXPECT_DOUBLE_EQ(0.5, particle.kinetic_energy());
+    EXPECT_DOUBLE_EQ(0.5, particle.energy());
     EXPECT_DOUBLE_EQ(0.5109989461, particle.mass());
     EXPECT_DOUBLE_EQ(-1., particle.charge());
     EXPECT_DOUBLE_EQ(0.0, particle.decay_constant());
@@ -119,7 +119,7 @@ TEST_F(ParticleTrackViewTestHost, gamma)
     particle = {ParticleDefId{1}, 10 * units::mega_electron_volt};
 
     EXPECT_DOUBLE_EQ(0, particle.mass());
-    EXPECT_DOUBLE_EQ(10, particle.kinetic_energy());
+    EXPECT_DOUBLE_EQ(10, particle.energy());
     EXPECT_DOUBLE_EQ(1.0, particle.speed());
     EXPECT_DOUBLE_EQ(10, particle.momentum()); // [1 / c]
 }
@@ -129,7 +129,7 @@ TEST_F(ParticleTrackViewTestHost, neutron)
     ParticleTrackView particle(params_view, state_view, ThreadId(0));
     particle = {ParticleDefId{2}, 20 * units::mega_electron_volt};
 
-    EXPECT_DOUBLE_EQ(20, particle.kinetic_energy());
+    EXPECT_DOUBLE_EQ(20, particle.energy());
     EXPECT_DOUBLE_EQ(1.0 / 879.4, particle.decay_constant());
 }
 

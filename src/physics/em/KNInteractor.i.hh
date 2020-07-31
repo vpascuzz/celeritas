@@ -26,7 +26,7 @@ KNInteractor::KNInteractor(const KNInteractorPointers& shared,
                            const Real3&                inc_direction,
                            SecondaryAllocatorView&     allocate)
     : inv_electron_mass_csq_(shared.inv_electron_mass_csq)
-    , inc_energy_(particle.kinetic_energy())
+    , inc_energy_(particle.energy())
     , inc_direction_(inc_direction)
     , allocate_(allocate)
 {
