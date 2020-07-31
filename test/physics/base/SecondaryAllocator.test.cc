@@ -162,9 +162,6 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
         SecondaryAllocatorStore temp_store = std::move(storage);
         EXPECT_EQ(1024, temp_store.capacity());
         EXPECT_EQ(1024, temp_store.get_size());
-
-        EXPECT_EQ(0, storage.capacity());
-        EXPECT_EQ(0, storage.get_size());
     }
 }
 

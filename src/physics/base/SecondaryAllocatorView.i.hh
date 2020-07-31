@@ -36,19 +36,19 @@ CELER_FUNCTION auto SecondaryAllocatorView::operator()(size_type count)
     if (CELER_UNLIKELY(start + count > shared_.storage.size()))
     {
         // Out of memory: restore the old value so that another thread can
-        // potentially use it.
-        // - Other threads might have given up in the meantime and incremented
-        // the "size" beyond the value we have, but none has allocated
-        // successfully.
-        // - The "start" value that we have might also be beyond the maximum
-        // count, since it's possible that multiple threads added past-the-end
-        // simultaneously.
-        if (start < this->capacity())
+        // potentially use it. Multiple threads are likely to exceed the
+        // capacity simultaneously. Only one has a "start" value less than or
+        // equal to the total capacity: the remainder are (arbitrarily) higher
+        // than that.
+        if (start <= this->capacity())
         {
             // We were the first thread to exceed capacity, even though other
             // threads might have failed (and might still be failing) to
             // allocate. Restore the actual allocated size to the start value.
-            atomic_min(shared_.size, start);
+            // This might allow another thread with a smaller allocation to
+            // succeed, but it also guarantees that at the end of the kernel,
+            // the size reflects the actual capacity.
+            *shared_.size = start;
         }
 
         // TODO It might be useful to set an "out of memory" flag to make it
