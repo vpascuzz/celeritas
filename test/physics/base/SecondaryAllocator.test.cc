@@ -80,12 +80,11 @@ class SecondaryAllocatorDeviceTest : public celeritas::Test
         // Use GPU pointer arithmetic to find the start address of the final
         // secondary allocation; divide by sizeof secondary, add the final
         // allocation
-        void* storage_begin_ptr
-            = static_cast<void*>(in.sa_view.allocator.storage.data());
-        auto prev_alloc = (static_cast<uintptr_t>(out.last_secondary_address)
-                           - reinterpret_cast<uintptr_t>(storage_begin_ptr))
-                          / sizeof(Secondary);
-        return prev_alloc + in.alloc_size;
+        Secondary* storage_end_ptr
+            = static_cast<Secondary*>(
+                  reinterpret_cast<void*>(out.last_secondary_address))
+              + in.alloc_size;
+        return storage_end_ptr - in.sa_view.storage.data();
     }
 
     SecondaryAllocatorStore storage;
@@ -108,6 +107,8 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
               result.num_allocations);
     accum_expected_alloc += result.num_allocations;
     EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
+    EXPECT_EQ(accum_expected_alloc, result.max_size);
+    EXPECT_EQ(accum_expected_alloc, storage.get_size());
 
     // Run again, two iterations per thread
     input.num_iters  = 2;
@@ -118,6 +119,8 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
               result.num_allocations);
     accum_expected_alloc += result.num_allocations;
     EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
+    EXPECT_EQ(accum_expected_alloc, result.max_size);
+    EXPECT_EQ(accum_expected_alloc, storage.get_size());
 
     // Run again, too many iterations (so storage gets filled up)
     input.num_iters   = 128;
@@ -127,9 +130,34 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
     EXPECT_EQ(0, result.num_errors);
     EXPECT_EQ(1024 - accum_expected_alloc, result.num_allocations);
     EXPECT_EQ(1024, actual_allocations(input, result));
+    EXPECT_EQ(1024, result.max_size);
+    EXPECT_EQ(1024, storage.get_size());
 
     // Reset secondary storage
     storage.clear();
+    EXPECT_EQ(1024, store.capacity());
+    EXPECT_EQ(0, store.get_size());
+
+    // Run again until full
+    input.num_threads = 512;
+    input.num_iters   = 3;
+    input.alloc_size  = 4;
+    auto result       = sa_test(input);
+    EXPECT_EQ(0, result.num_errors);
+    EXPECT_EQ(1024, result.num_allocations);
+    EXPECT_EQ(1024, actual_allocations(input, result));
+    EXPECT_EQ(1024, result.max_size);
+    EXPECT_EQ(1024, storage.get_size());
+
+    // Check move operation
+    {
+        SecondaryAllocatorStore temp_store = std::move(storage);
+        EXPECT_EQ(1024, temp_store.capacity());
+        EXPECT_EQ(1024, temp_store.get_size());
+
+        EXPECT_EQ(0, store.capacity());
+        EXPECT_EQ(0, store.get_size());
+    }
 }
 
 #endif

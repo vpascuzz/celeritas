@@ -63,6 +63,10 @@ __global__ void sa_test_kernel(SATestInput input, SATestOutput* output)
         atomicMax(&output->last_secondary_address,
                   reinterpret_cast<SATestOutput::ull_int>(secondaries));
     }
+
+    // Do a max on the total reported size
+    atomicMax(&output->max_size,
+              static_cast<int>(allocate.secondaries().size()));
 }
 
 //---------------------------------------------------------------------------//
