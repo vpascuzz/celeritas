@@ -64,9 +64,20 @@ __global__ void sa_test_kernel(SATestInput input, SATestOutput* output)
                   reinterpret_cast<SATestOutput::ull_int>(secondaries));
     }
 
-    // Do a max on the total reported size
-    atomicMax(&output->max_size,
-              static_cast<int>(allocate.secondaries().size()));
+    // Do a max on the total in-kernel size, which *might* be under
+    // modification by atomics!
+    atomicMax(&output->max_size, static_cast<int>(*input.sa_view.size));
+}
+
+__global__ void sa_post_test_kernel(SATestInput input, SATestOutput* output)
+{
+    auto thread_id = celeritas::KernelParamCalculator::thread_id();
+
+    const SecondaryAllocatorView allocate(input.sa_view);
+    if (thread_id == ThreadId{0})
+    {
+        output->view_size = allocate.secondaries().size();
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -81,6 +92,11 @@ SATestOutput sa_test(SATestInput input)
     celeritas::KernelParamCalculator calc_launch_params;
     auto params = calc_launch_params(input.num_threads);
     sa_test_kernel<<<params.grid_size, params.block_size>>>(
+        input, raw_pointer_cast(out.data()));
+    CELER_CUDA_CHECK_ERROR();
+
+    // Access secondaries after the first kernel completed
+    sa_post_test_kernel<<<params.grid_size, params.block_size>>>(
         input, raw_pointer_cast(out.data()));
     CELER_CUDA_CHECK_ERROR();
 

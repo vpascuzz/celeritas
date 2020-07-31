@@ -36,11 +36,20 @@ CELER_FUNCTION auto SecondaryAllocatorView::operator()(size_type count)
     if (CELER_UNLIKELY(start + count > shared_.storage.size()))
     {
         // Out of memory: restore the old value so that another thread can
-        // potentially use it. Other threads might have given up in the
-        // meantime and incremented the "size" beyond the value we have, but we
-        // can be sure that none has allocated successfully. With this logic we
-        // can ensure that `shared_.size` is always accurate.
-        *shared_.size = start;
+        // potentially use it.
+        // - Other threads might have given up in the meantime and incremented
+        // the "size" beyond the value we have, but none has allocated
+        // successfully.
+        // - The "start" value that we have might also be beyond the maximum
+        // count, since it's possible that multiple threads added past-the-end
+        // simultaneously.
+        if (start < this->capacity())
+        {
+            // We were the first thread to exceed capacity, even though other
+            // threads might have failed (and might still be failing) to
+            // allocate. Restore the actual allocated size to the start value.
+            atomic_min(shared_.size, start);
+        }
 
         // TODO It might be useful to set an "out of memory" flag to make it
         // easier for host code to detect whether a failure occurred, rather
@@ -60,9 +69,20 @@ CELER_FUNCTION auto SecondaryAllocatorView::operator()(size_type count)
  *
  * This cannot be called while any running kernel could be modifiying the size.
  */
+CELER_FUNCTION auto SecondaryAllocatorView::capacity() const -> size_type
+{
+    return shared_.storage.size();
+}
+
+//---------------------------------------------------------------------------//
+/*!
+ * View all allocated secondaries.
+ *
+ * This cannot be called while any running kernel could be modifiying the size.
+ */
 CELER_FUNCTION auto SecondaryAllocatorView::secondaries() -> SpanSecondary
 {
-    REQUIRE(*shared_.size <= shared_.storage.size());
+    // REQUIRE(*shared_.size <= this->capacity());
     return {shared_.storage.data(), *shared_.size};
 }
 
@@ -75,7 +95,7 @@ CELER_FUNCTION auto SecondaryAllocatorView::secondaries() -> SpanSecondary
 CELER_FUNCTION auto SecondaryAllocatorView::secondaries() const
     -> constSpanSecondary
 {
-    REQUIRE(*shared_.size < shared_.storage.size());
+    // REQUIRE(*shared_.size <= this->capacity());
     return {shared_.storage.data(), *shared_.size};
 }
 //---------------------------------------------------------------------------//

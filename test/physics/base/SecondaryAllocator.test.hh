@@ -31,6 +31,7 @@ struct SATestOutput
     int     num_errors             = 0;
     int     num_allocations        = 0;
     int     max_size               = 0;
+    int     view_size              = 0;
     ull_int last_secondary_address = 0;
 };
 

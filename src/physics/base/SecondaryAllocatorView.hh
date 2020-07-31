@@ -35,6 +35,9 @@ class SecondaryAllocatorView
     // Allocate space for this many secondaries
     inline CELER_FUNCTION result_type operator()(size_type count);
 
+    // Total storage capacity
+    inline CELER_FUNCTION size_type capacity() const;
+
     // View all active secondaries
     inline CELER_FUNCTION SpanSecondary secondaries();
 

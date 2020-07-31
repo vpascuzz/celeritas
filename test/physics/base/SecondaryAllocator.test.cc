@@ -33,6 +33,7 @@ TEST_F(SecondaryAllocatorHostTest, allocation)
 {
     secondaries_.resize(16);
     SecondaryAllocatorView alloc(secondaries_.host_pointers());
+    EXPECT_EQ(16, alloc.capacity());
 
     // Allocate 8 of the 16 slots
     Secondary* ptr = alloc(8);
@@ -56,6 +57,9 @@ TEST_F(SecondaryAllocatorHostTest, allocation)
     ptr = alloc(8);
     ASSERT_NE(nullptr, ptr);
     EXPECT_EQ(16, alloc.secondaries().size());
+    EXPECT_EQ(
+        16,
+        const_cast<const SecondaryAllocatorView&>(alloc).secondaries().size());
 }
 
 //---------------------------------------------------------------------------//
@@ -108,6 +112,7 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
     accum_expected_alloc += result.num_allocations;
     EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
     EXPECT_EQ(accum_expected_alloc, result.max_size);
+    EXPECT_EQ(accum_expected_alloc, result.view_size);
     EXPECT_EQ(accum_expected_alloc, storage.get_size());
 
     // Run again, two iterations per thread
@@ -120,6 +125,7 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
     accum_expected_alloc += result.num_allocations;
     EXPECT_EQ(accum_expected_alloc, actual_allocations(input, result));
     EXPECT_EQ(accum_expected_alloc, result.max_size);
+    EXPECT_EQ(accum_expected_alloc, result.view_size);
     EXPECT_EQ(accum_expected_alloc, storage.get_size());
 
     // Run again, too many iterations (so storage gets filled up)
@@ -130,23 +136,25 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
     EXPECT_EQ(0, result.num_errors);
     EXPECT_EQ(1024 - accum_expected_alloc, result.num_allocations);
     EXPECT_EQ(1024, actual_allocations(input, result));
-    EXPECT_EQ(1024, result.max_size);
+    EXPECT_LE(1024, result.max_size);
+    EXPECT_EQ(1024, result.view_size);
     EXPECT_EQ(1024, storage.get_size());
 
     // Reset secondary storage
     storage.clear();
-    EXPECT_EQ(1024, store.capacity());
-    EXPECT_EQ(0, store.get_size());
+    EXPECT_EQ(1024, storage.capacity());
+    EXPECT_EQ(0, storage.get_size());
 
     // Run again until full
     input.num_threads = 512;
     input.num_iters   = 3;
     input.alloc_size  = 4;
-    auto result       = sa_test(input);
+    result            = sa_test(input);
     EXPECT_EQ(0, result.num_errors);
     EXPECT_EQ(1024, result.num_allocations);
     EXPECT_EQ(1024, actual_allocations(input, result));
-    EXPECT_EQ(1024, result.max_size);
+    EXPECT_LE(1024, result.max_size);
+    EXPECT_EQ(1024, result.view_size);
     EXPECT_EQ(1024, storage.get_size());
 
     // Check move operation
@@ -155,8 +163,8 @@ TEST_F(SecondaryAllocatorDeviceTest, run)
         EXPECT_EQ(1024, temp_store.capacity());
         EXPECT_EQ(1024, temp_store.get_size());
 
-        EXPECT_EQ(0, store.capacity());
-        EXPECT_EQ(0, store.get_size());
+        EXPECT_EQ(0, storage.capacity());
+        EXPECT_EQ(0, storage.get_size());
     }
 }
 
